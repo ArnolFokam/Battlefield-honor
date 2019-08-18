@@ -1,8 +1,8 @@
-# Battle-arena
-A Battle royale game for the real ones. Built with Phaser 3, React and Colyseus, Battle arena - battefield honor is a survival game in its epiphany which brings players in unkown locations of a map together and force them to fight for thier survival. It came form the concept of popular games such as [Fortnite](https://fr.wikipedia.org/wiki/Fortnite) or [Pubg](https://fr.wikipedia.org/wiki/PlayerUnknown%27s_Battlegrounds) 
+# Battlefield-honor
+A Battle royale game for the real ones. Built with Phaser 3, ReactJS and Colyseus, Battle arena - battefield honor is a survival game in its epiphany which brings players in unkown locations of a map together and force them to fight for thier survival. It came form the concept of popular games such as [Fortnite](https://fr.wikipedia.org/wiki/Fortnite) or [Pubg](https://fr.wikipedia.org/wiki/PlayerUnknown%27s_Battlegrounds) 
 
 ## Technical information
-* Our game's frontend is developed in [PhaserJS](https://phaser.io/) - a js framework which gives us the possibility to build HTML5 games with less stress.
+* Our game's frontend is developed in [PhaserJS](https://phaser.io/) - a js framework which gives us the possibility to build HTML5 games with less stress. We use [ReactJS](https://en.reactjs.org) for the game ui. We ensure a consistent state management through our game app with [Redux](https://redux.js.org/) and a good url management with [React router](https://reacttraining.com/react-router/web/guides/quick-start)
 * Our game's backend is done with nodeJS which uses [Colyseus](https://colyseus.io/) to implement a powerful multiplayer game server.
 * The sound, image assets from the game are all from various internet sources (All Open Source)
 * The map of the game has been drawn using Tiled Map Editor - a powerful tool to draw game maps.
@@ -17,9 +17,9 @@ A Battle royale game for the real ones. Built with Phaser 3, React and Colyseus,
 * The score which shows how many players has been eliminated by a particular player.|
 * SoundTrack when the playing in the game.
 * Sound effects for the game (bullet firing).
+* HUD's to display the useful information about the player such as its health.
 
 ## What we still have to implement
-* HUD's to display the useful information about the player such as its health.
 * Multiple rooms to host multiple parties and add limitations to number of player allowed per room.
 * A Menu system to help the player navigate along the game.
 * Powerups and special abilities that the player can have along the game.
@@ -37,7 +37,7 @@ After installation of the above programs, if you didm't have them...
 
 1. clone the repository by entering the command below in your terminal.
 
-  ```git clone https://github.com/ArnolFokam/Battle-arena.git```
+  ```git clone https://github.com/ArnolFokam/Battlefield-honor.git```
 
 2. Navigate to the folder of the project using your terminal 
 
@@ -60,3 +60,16 @@ Three brightful minds namely:
  [Arnol Fokam](https://github.com/ArnolFokam/) - JS Ninja and cold blooded Game architect.  
  [Teddy Baha](https://github.com/Wil2129) - Firebase Samurai and Ace critical thinker.  
  [Alex Jordan](https://github.com/alexjordan05) - Graphics Sensei and Gamer in the Soul.  
+
+## Credits
+ * The player in the game was inspired by the players in [surviv.io](http://surviv.io) and the player's sprite was obtained from this (website)[ https://survivio.fandom.com/wiki/Creator_Kit].
+ * The assets we used to do the tilemaps was obtained from [Kenny's website](https://www.kenney.nl/assets/topdown-shooter).
+
+## Useful ressources
+ * [Phaser 3 Examples](http://labs.phaser.io)
+ * [Phaser 3 API Documentation](https://photonstorm.github.io/phaser3-docs/)\
+ * [Colyseus 0.10.x docs](https://docs.colyseus.io)
+ * [Github colyseus/colyseus-examples](https://github.com/colyseus/colyseus-examples)
+ * [Create a Multiplayer Pirate Shooter Game: In Your Browser](https://code.tutsplus.com/tutorials/create-a-multiplayer-pirate-shooter-game-in-your-browser--cms-23311)
+ * [Simple Redux Create Delete Contact Application](https://www.codingame.com/playgrounds/9169/simple-redux-create-delete-contact-application)
+
