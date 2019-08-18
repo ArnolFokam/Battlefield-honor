@@ -67,7 +67,7 @@ Three brightful minds namely:
 
 ## Useful ressources
  * [Phaser 3 Examples](http://labs.phaser.io)
- * [Phaser 3 API Documentation](https://photonstorm.github.io/phaser3-docs/)\
+ * [Phaser 3 API Documentation](https://photonstorm.github.io/phaser3-docs/)
  * [Colyseus 0.10.x docs](https://docs.colyseus.io)
  * [Github colyseus/colyseus-examples](https://github.com/colyseus/colyseus-examples)
  * [Create a Multiplayer Pirate Shooter Game: In Your Browser](https://code.tutsplus.com/tutorials/create-a-multiplayer-pirate-shooter-game-in-your-browser--cms-23311)
