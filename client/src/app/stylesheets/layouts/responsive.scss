@@ -1,0 +1,45 @@
+    /*Responsiveness*/
+    @media (min-width: 576px) {
+    .container {
+    max-width: 540px;
+    }
+    }
+    @media (min-width: 768px) {
+    .container {
+    max-width: 720px;
+    }
+    }
+    @media (min-width: 992px) {
+    .container {
+    max-width: 960px;
+    }
+    }
+    @media (min-width: 1200px) {
+    .container {
+    max-width: 1140px;
+    }
+    }
+    @media screen and (min-width: 576px) {
+    .col-xs-6 {
+    -ms-flex: 0 0 50%;
+    flex: 0 0 50%;
+    max-width: 50%;
+    }
+    }
+    @media screen and (min-width: 768px) {
+    .col-md-3 {
+    -ms-flex: 0 0 25%;
+    flex: 0 0 25%;
+    max-width: 25%;
+    }
+    .col-md-4 {
+    -ms-flex: 0 0 50%;
+    flex: 0 0 50%;
+    max-width: 50%;
+    }
+    }
+    .container {
+    width: 100%;
+    padding: 0 15px;
+    margin: 0 auto;
+}

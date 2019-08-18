@@ -1,0 +1,121 @@
+#home{
+	background-image: url("./../../assets/images/game.png");
+	background-repeat: no-repeat;
+    color: #fff;
+	background-size: cover;
+    background-repeat: no-repeat;
+    background-size: cover;
+    -moz-background-size: cover;
+    -webkit-background-size: cover;
+    -o-background-size: cover;
+    -ms-background-size: cover;
+    position: relative;
+    min-height: 100vh;
+    z-index: 1;
+    display: block;;
+}
+
+.header {
+
+	text-align: center;
+
+	h1{
+		font-size: 4em;
+	}
+	h2{
+		font-size: 2em;
+	}
+
+}
+
+.play_form_container{
+    width: 800px;
+    background: rgba(11, 13, 24, 0.5);
+    margin: 125px auto 50px auto;
+ }
+
+ .play_form{
+    padding: 35px 65px 51px 65px;
+    justify-content: space-between;
+
+    input, button {
+        padding: 20px 20px;
+        border: 1px solid rgba(0,0,0,0.3);
+        border-bottom-width: 3px;
+        font-weight: 600;
+        font-size: 1.2em;
+
+    }
+
+    input{
+        width: 100%;
+        background: #fff;
+        color: #222;
+    }
+
+    .name, .play {
+    }
+
+    .name {
+        width: 500px;
+    }
+
+    .play{
+        width: 140px;
+    }
+
+    .btn {
+        display: inline-block;
+        color: #666;
+        text-transform: uppercase;
+        width: 100%;
+        font-weight: 600;
+        color: #222;
+        background: rgb(248, 186, 15);
+        color: #fff;
+        margin-left: 8px;
+
+        &:hover {
+            background-color: rgb(236, 178, 18);
+            border-color: rgba(0,0,0,0.5);
+        }
+
+        &:active {
+            background-color: rgb(236, 178, 18);
+            border-color: rgba(0,0,0,0.9);
+        }
+    }
+
+ }
+
+ .about > div {
+    margin-top: 1em;
+ } 
+
+
+.about h2, .how-to h2{
+  text-align: center;
+}
+
+.about p {
+    text-align: justify
+}
+
+.about p span {
+  font-weight: bolder;
+}
+
+.how-to li{
+  margin-left: 8px;
+}
+
+@media screen and (max-width: 800px) {
+    .play_form_container{
+        width: 100%;
+    }
+
+    .play_form{
+        justify-content: center;
+    }
+}
+

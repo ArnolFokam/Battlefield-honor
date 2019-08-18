@@ -1,0 +1,50 @@
+@font-face{
+	font-family: 'Valera Round';
+	src: url('./../assets/fonts/Valera_round/VarelaRound-Regular.ttf') format('truetype');
+}
+
+html{
+	height: 100%;
+}
+
+body {
+	font-family: 'Varela Round', sans-serif;	
+	font-size: 1em;
+    line-height: 1.8;
+}
+
+h1, h2, h3, h4, h4, h5, h6 {
+	margin: 0;
+	padding: 0;
+}
+
+p{
+   margin: 1em;
+}
+
+
+input, button, a {
+	outline: none;
+	border: none;
+	border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -o-border-radius: 5px;
+    -ms-border-radius: 5px;
+}
+
+input[type="submit"], button, a {
+	cursor: pointer;
+}
+
+.overlay {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	right: 0;
+	left: 0;
+    width: 100%;
+    height: 100%;
+	background: rgba(0, 0, 0, 0.5);
+	z-index: -1;
+}
