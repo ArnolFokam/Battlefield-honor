@@ -138,6 +138,9 @@ export default class PlayScene extends Phaser.Scene {
                             self.bullets[bullet.index].y = change.value;
                         }
                     });
+                    if (self.map["blockLayer"].hasTileAtWorldXY(self.bullets[bullet.index].x, self.bullets[bullet.index].y)) {
+                        self.removeBullet(bullet.index);
+                    }
                 };
 
             }

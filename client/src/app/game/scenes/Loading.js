@@ -35,21 +35,44 @@ export default class LoadingScene extends Phaser.Scene {
         let height = this.game.scale.height;
         let width = this.game.scale.width;
 
+        let background = this.add.graphics();
+        let progressBox = this.add.graphics();
         let progress = this.add.graphics();
-        /*let loadingText = this.add.text((width / 2) - 120, (height / 2) + 40, 'Loading...', {
-            fontFamily: '"Valera Round", "sans-serif"',
+        let loadingText = this.add.text((width / 2) - 75, (height / 2) + 45, 'Loading...', {
+            fontFamily: '"Valera Round", "Product Sans", "sans-serif"',
             fontSize: '30px',
-            fill: '#fff'
-        });*/
-
-        this.load.on('progress', function(value) {
-            //place loading
+            fontStyle: 'bold',
+            color: '#fff'
         });
-        this.load.on('complete', function() {
-            //undo loading stuffs and start the game
-            progress.destroy();
 
-            self.scene.start("play", { name: self.name });
+        let percentageText = this.add.text((width / 2) - 12, (height / 2) - 8, '0%', {
+            fontFamily: '"Valera Round", "Product Sans", "sans-serif"',
+            fontSize: '16px',
+            color: '#fff'
+        });
+
+        this.load.on('progress', function (value) {
+            background.fillStyle(0x008040);
+            progressBox.fillRect(0, 0, width, height);
+            progressBox.fillStyle(0x00C0FF);
+            progressBox.fillRoundedRect(width / 4, (height / 2) - 22.5, width / 2, 45, 10).setAlpha(0.5, 0.5, 0.5, 0.5);
+            progress.clear();
+            progress.lineStyle(5, 0xFF0000);
+            progress.fillStyle(0xFFC000);
+            progress.fillRoundedRect(width / 4, (height / 2) - 22.5, (width / 2) * value, 45, 10);
+            progress.strokeRoundedRect(width / 4, (height / 2) - 22.5, width / 2, 45, 10);
+            percentageText.setText(Math.floor(value * 100) + "%");
+        });
+        this.load.on('complete', function () {
+            //undo loading stuffs and start the game
+            background.destroy();
+            progressBox.destroy();
+            progress.destroy();
+            loadingText.destroy();
+            percentageText.destroy();
+            self.scene.start("play", {
+                name: self.name
+            });
 
             delete self.name;
 
@@ -58,8 +81,7 @@ export default class LoadingScene extends Phaser.Scene {
         });
     }
 
-    create() {
-    }
+    create() {}
 
     update() {}
 
