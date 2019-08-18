@@ -62,7 +62,7 @@ Three brightful minds namely:
  [Alex Jordan](https://github.com/alexjordan05) - Graphics Sensei and Gamer in the Soul.  
 
 ## Credits
- * The player in the game was inspired by the players in [surviv.io](http://surviv.io) and the player's sprite was obtained from this (website)[ https://survivio.fandom.com/wiki/Creator_Kit].
+ * The player in the game was inspired by the players in [surviv.io](http://surviv.io) and the player's sprite was obtained from this [website](https://survivio.fandom.com/wiki/Creator_Kit).
  * The assets we used to do the tilemaps was obtained from [Kenny's website](https://www.kenney.nl/assets/topdown-shooter).
 
 ## Useful ressources
