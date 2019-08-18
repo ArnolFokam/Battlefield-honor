@@ -127,7 +127,8 @@ exports.outdoor = class extends colyseus.Room {
         this.state.createPlayer(client.sessionId, options.name);
         this.send(client, {
             event: "start_position",
-            position: nextPosition
+            position: nextPosition,
+            players_online: this.state.players_online
         });
 
         this.broadcast({
