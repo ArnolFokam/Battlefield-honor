@@ -1,3 +1,4 @@
+
 #home{
 	background-image: url("./../../assets/images/game.png");
 	background-repeat: no-repeat;
@@ -90,6 +91,7 @@
 
  .about > div {
     margin-top: 1em;
+    min-width: 300px;
  } 
 
 
@@ -116,6 +118,10 @@
 
     .play_form{
         justify-content: center;
+    }
+
+    .play{
+        margin-top: 1.5em;
     }
 }
 

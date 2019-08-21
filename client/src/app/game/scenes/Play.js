@@ -1,5 +1,4 @@
 import Phaser from "phaser";
-import cursorImage from "./../../assets/cursor.cur";
 import * as Colyseus from "colyseus.js";
 
 
@@ -47,7 +46,7 @@ export default class PlayScene extends Phaser.Scene {
 
         this.bulletSound = this.sound.add('bulletSound');
 
-        this.input.setDefaultCursor(`url('${cursorImage}'), crosshair`);
+        this.input.setDefaultCursor('crosshair');
         this.map = this.make.tilemap({
             key: "map"
         });
@@ -138,9 +137,9 @@ export default class PlayScene extends Phaser.Scene {
                             self.bullets[bullet.index].y = change.value;
                         }
                     });
-                    if (self.map["blockLayer"].hasTileAtWorldXY(self.bullets[bullet.index].x, self.bullets[bullet.index].y)) {
+                    /*if (self.map["blockLayer"].hasTileAtWorldXY(self.bullets[bullet.index].x, self.bullets[bullet.index].y)) {
                         self.removeBullet(bullet.index);
-                    }
+                    }*/
                 };
 
             }

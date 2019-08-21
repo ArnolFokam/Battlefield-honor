@@ -43,9 +43,11 @@ After installation of the above programs, if you didm't have them...
 
 3. Next, enter this command in your terminal to install the dependencies you need for the game.
   ```npm install```
-4. Then run this command to run the game server on your computer.
+4. Next, enter this command in your terminal to build the frontend files you need for your game to run on your browser.
+  ```npm run build```
+5. Then run this command to run the game server on your computer.
   ```npm run start:server```
-5. That's it. Your server is up and running. By now, you can open a couple of pages to test it on you computer.
+6. That's it. Your server is up and running. By now, you can open a couple of pages to test it on you computer.
   * [http://localhost:2567](http://localhost:2567) can be opened in you browser to see and play the game.
   * [http://localhost:2567/colyseus](http://localhost:2567/colyseus) can be opened to monitor the  status of your game server. (client connected, rooms etc)
 
