@@ -74,7 +74,7 @@ class State extends Schema {
     createPlayer(id, name) {
         this.players[id] = new Player();
         this.players[id].health = 100;
-        this.players[id].name = name;
+        this.players[id].name = name.toString();
         this.players_online = this.players_online + 1;
     }
 
@@ -169,8 +169,10 @@ exports.outdoor = class extends colyseus.Room {
         }
     }
     onLeave(client, consented) {
-        this.state.removePlayer(client.sessionId);
-        this.broadcast({event: "players_online", number: this.state.players_online });
+        if(this.state.getPlayer(client.sessionId)){
+            this.state.removePlayer(client.sessionId);
+            this.broadcast({event: "players_online", number: this.state.players_online });
+        }
     }
 
     onDispose() {}
@@ -202,6 +204,7 @@ exports.outdoor = class extends colyseus.Room {
                                 this.send(this.getClientById(id), { event: "dead" });
                                 this.send(this.getClientById(this.state.bullets[i].owner_id), { event: "good_shot" });
                                 this.state.removePlayer(id);
+                                this.broadcast({event: "players_online", number: this.state.players_online });
                             }
                             this.state.removeBullet(i);
                             return;

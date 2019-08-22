@@ -7,7 +7,7 @@ const endpoint = (window.location.hostname === "localhost") ? `ws://localhost:${
 //for heroku remote deployment...to run it locally comment the code below and uncomment the code at the top
 //const endpoint = (window.location.protocol === "http:") ? `ws://${process.env.APP_URL}` : `wss://${process.env.APP_URL}`
 
-var client = new Colyseus.Client(endpoint);
+
 
 export default class PlayScene extends Phaser.Scene {
 
@@ -30,6 +30,8 @@ export default class PlayScene extends Phaser.Scene {
             herbe: 1,
             HUD: 2
         }
+
+        this.client = new Colyseus.Client(endpoint);
     }
 
     init(params) {
@@ -73,9 +75,9 @@ export default class PlayScene extends Phaser.Scene {
 
     connect() {
         var self = this;
-        this.room = client.join("outdoor", {
-            name: self.player.name
-        });
+        let name = "";
+
+        this.room = this.client.join("outdoor", { name: self.player.name });
 
 
         this.room.onJoin.add(() => {
@@ -96,6 +98,7 @@ export default class PlayScene extends Phaser.Scene {
                             rotation: data.rotation || 0,
                             name: data.name
                         });
+                        console.log(data)
                         let player_sprite = self.players[id].sprite;
                         player_sprite.target_x = state.players[id].x; // Update target, not actual position, so we can interpolate
                         player_sprite.target_y = state.players[id].y;

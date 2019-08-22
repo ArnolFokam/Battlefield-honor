@@ -52,16 +52,13 @@ export default class LoadingScene extends Phaser.Scene {
         });
 
         this.load.on('progress', function (value) {
+            background.fillRect(0, 0, width, height);
             background.fillStyle(0x008040);
-            progressBox.fillRect(0, 0, width, height);
-            progressBox.fillStyle(0x00C0FF);
-            progressBox.fillRoundedRect(width / 4, (height / 2) - 22.5, width / 2, 45, 10).setAlpha(0.5, 0.5, 0.5, 0.5);
             progress.clear();
             progress.lineStyle(5, 0xFF0000);
             progress.fillStyle(0xFFC000);
-            progress.fillRoundedRect(width / 4, (height / 2) - 22.5, (width / 2) * value, 45, 10);
-            progress.strokeRoundedRect(width / 4, (height / 2) - 22.5, width / 2, 45, 10);
-            percentageText.setText(Math.floor(value * 100) + "%");
+            progress.fillRect(width / 4, (height / 2) - 22.5, (width / 2) * value, 45);
+            percentageText.setText(Math.ceil(value * 100) + "%");
         });
         this.load.on('complete', function () {
             //undo loading stuffs and start the game

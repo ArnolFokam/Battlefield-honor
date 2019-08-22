@@ -31,14 +31,28 @@ class Home extends React.Component {
 
 
   handleClick(){
-    let player_name = this.state.name === ''? 'commando' : this.state.name;
-    this.props.setPlayerName(player_name);
+    let name;
 
+    if(isNaN(this.state.name)){
+      name =  this.state.name;
+    } else {
+      name = "Commando" + this.state.name;
+    }
+
+    let player_name = name;
+
+    this.props.setPlayerName(player_name);
     this.props.history.push('/play');
   }
 
   handleChange(event){
     this.setState({ name: event.target.value });
+  }
+
+  UNSAFE_componentWillMount(){
+    if(this.props.player.name){
+      window.location.reload(false);
+    }
   }
 
  render() {
@@ -59,7 +73,8 @@ class Home extends React.Component {
               name="name" 
               placeholder="Commando Name"
               value={this.state.name}
-              onChange={this.handleChange}/>
+              onChange={this.handleChange}
+              className=""/>
           </div>
           <div className="play">
             <button onClick={this.handleClick} className="btn">Play</button>
@@ -76,11 +91,11 @@ class Home extends React.Component {
         <div className="col-md-4 col-xs-6 how-to"> 
           <h2>How to play</h2>
           <ul>
-          <li>Use arrow keys for displacement</li>
-          <li>Click the mouse to shoot</li>
-          <li>The position of the mouse gives the orientation of the player</li>
-          <li>Bring your freinds and enjoy </li>
-        </ul>
+            <li>Use arrow keys for displacement</li>
+            <li>Click the mouse to shoot</li>
+            <li>The position of the mouse gives the orientation of the player</li>
+            <li>Bring your freinds and enjoy </li>
+          </ul>
         </div>
       </div>
     </div>
