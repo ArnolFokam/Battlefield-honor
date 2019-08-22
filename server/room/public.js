@@ -18,6 +18,8 @@ type("number")(Bullet.prototype, "y");
 type("number")(Bullet.prototype, "angle");
 type("number")(Bullet.prototype, "speed_x");
 type("number")(Bullet.prototype, "speed_y");
+type("number")(Bullet.prototype, "first_collision_x");
+type("number")(Bullet.prototype, "first_collision_y");
 type("number")(Bullet.prototype, "index");
 
 
@@ -47,6 +49,8 @@ class State extends Schema {
         bullet.angle = data.angle;
         bullet.speed_x = data.speed_x;
         bullet.speed_y = data.speed_y;
+        bullet.first_collision_x = data.first_collision_x;
+        bullet.first_collision_y = data.first_collision_y;
         bullet.distanceTravelled = 0;
         bullet.owner_id = id;
         this.bullets[this.bullet_index++] = bullet;
@@ -183,7 +187,7 @@ exports.outdoor = class extends colyseus.Room {
         for (let i in this.state.bullets) {
             this.state.moveBullet(i);
             //remove the bullet if it goes too far
-            if (this.state.bullets[i].x < -10 || this.state.bullets[i].x > 3200 || this.state.bullets[i].y < -10 || this.state.bullets[i].y > 3200 || this.state.bullets[i].distanceTravelled >= 600) {
+            if (this.state.bullets[i].x < -10 || this.state.bullets[i].x > 3200 || this.state.bullets[i].y < -10 || this.state.bullets[i].y > 3200 || this.state.bullets[i].distanceTravelled >= 600 || (this.state.bullets[i].x == this.state.bullets[i].first_collision_x && this.state.bullets[i].y == this.state.bullets[i].first_collision_y)) {
                 this.state.removeBullet(i);
             } else {
                 //check if this bullet is close enough to hit a player

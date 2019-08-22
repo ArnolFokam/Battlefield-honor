@@ -55,7 +55,6 @@ export default class LoadingScene extends Phaser.Scene {
             background.fillRect(0, 0, width, height);
             background.fillStyle(0x008040);
             progress.clear();
-            progress.lineStyle(5, 0xFF0000);
             progress.fillStyle(0xFFC000);
             progress.fillRect(width / 4, (height / 2) - 22.5, (width / 2) * value, 45);
             percentageText.setText(Math.ceil(value * 100) + "%");

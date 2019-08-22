@@ -266,6 +266,18 @@ export default class PlayScene extends Phaser.Scene {
                     let speed_x = Math.cos(this.player.sprite.rotation + Math.PI / 2) * 50;
                     let speed_y = Math.sin(this.player.sprite.rotation + Math.PI / 2) * 50;
 
+                    let x = this.player.sprite.x;
+                    let y = this.player.sprite.y;
+                    let distanceTravelled = 0;
+                    while (!(this.map["blockLayer"].hasTileAtWorldXY(x, y))) {
+                        x -= speed_x;
+                        y -= speed_y;
+                        distanceTravelled += Math.sqrt(speed_x * speed_x + speed_y * speed_y);
+                        if (x < -10 || x > 3200 || y < -10 || y > 3200 || distanceTravelled >= 600) {
+                            break;
+                        }
+                    }
+
                     // Tell the server we shot a bullet 
                     this.room.send({
                         action: "shoot_bullet",
@@ -274,7 +286,9 @@ export default class PlayScene extends Phaser.Scene {
                             y: this.player.sprite.y,
                             angle: this.player.sprite.rotation,
                             speed_x: speed_x,
-                            speed_y: speed_y
+                            speed_y: speed_y,
+                            first_collision_x: x,
+                            first_collision_y: y
                         }
                     });
 
