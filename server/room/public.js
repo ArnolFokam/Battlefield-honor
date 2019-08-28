@@ -11,6 +11,7 @@ type("number")(Player.prototype, "y");
 type("number")(Player.prototype, "rotation");
 type("number")(Player.prototype, "health");
 type("string")(Player.prototype, "name");
+type("number")(Player.prototype, "num_bullets");
 
 class Bullet extends Schema {}
 type("number")(Bullet.prototype, "x");
@@ -53,6 +54,7 @@ class State extends Schema {
         bullet.first_collision_y = data.first_collision_y;
         bullet.distanceTravelled = 0;
         bullet.owner_id = id;
+        this.players[id].num_bullets -= 1;
         this.bullets[this.bullet_index++] = bullet;
     }
 
@@ -80,6 +82,7 @@ class State extends Schema {
         this.players[id].health = 100;
         this.players[id].name = name.toString();
         this.players_online = this.players_online + 1;
+        this.players[id].num_bullets = 50;
     }
 
     getPlayer(id) {
@@ -132,7 +135,8 @@ exports.outdoor = class extends colyseus.Room {
         this.send(client, {
             event: "start_position",
             position: nextPosition,
-            players_online: this.state.players_online
+            players_online: this.state.players_online,
+            num_bullets: this.state.players[client.sessionId].num_bullets
         });
 
         this.broadcast({

@@ -22,6 +22,8 @@ export default class PlayScene extends Phaser.Scene {
     backgroundMusic = null;
     bulletSound = null;
     closingMessage = "You have been disconnected from the server";
+    lastFired = 0;
+    shootingRate = 0;
 
     constructor() {
         super("play");
@@ -77,7 +79,9 @@ export default class PlayScene extends Phaser.Scene {
         var self = this;
         let name = "";
 
-        this.room = this.client.join("outdoor", { name: self.player.name });
+        this.room = this.client.join("outdoor", {
+            name: self.player.name
+        });
 
 
         this.room.onJoin.add(() => {
@@ -98,7 +102,7 @@ export default class PlayScene extends Phaser.Scene {
                             rotation: data.rotation || 0,
                             name: data.name
                         });
-                        console.log(data)
+                        console.log(data);
                         let player_sprite = self.players[id].sprite;
                         player_sprite.target_x = state.players[id].x; // Update target, not actual position, so we can interpolate
                         player_sprite.target_y = state.players[id].y;
@@ -113,7 +117,7 @@ export default class PlayScene extends Phaser.Scene {
 
                 if (sessionId != this.room.sessionId) {
                     // If you want to track changes on a child object inside a map, this is a common pattern:
-                    player.onChange = function(changes) {
+                    player.onChange = function (changes) {
                         changes.forEach(change => {
                             if (change.field == "rotation") {
                                 self.players[sessionId].sprite.target_rotation = change.value;
@@ -125,6 +129,14 @@ export default class PlayScene extends Phaser.Scene {
                         });
                     };
 
+                } else {
+                    player.onChange = function (changes) {
+                        changes.forEach(change => {
+                            if (change.field == "num_bullets") {
+                                self.player.num_bullets = change.value;
+                            }
+                        });
+                    };
                 }
             }
 
@@ -132,7 +144,7 @@ export default class PlayScene extends Phaser.Scene {
                 self.bullets[bullet.index] = self.physics.add.sprite(bullet.x, bullet.y, 'bullet').setRotation(bullet.angle);
 
                 // If you want to track changes on a child object inside a map, this is a common pattern:
-                bullet.onChange = function(changes) {
+                bullet.onChange = function (changes) {
                     changes.forEach(change => {
                         if (change.field == "x") {
                             self.bullets[bullet.index].x = change.value;
@@ -147,13 +159,13 @@ export default class PlayScene extends Phaser.Scene {
 
             }
 
-            this.room.state.bullets.onRemove = function(bullet, sessionId) {
+            this.room.state.bullets.onRemove = function (bullet, sessionId) {
                 self.removeBullet(bullet.index);
             }
 
 
 
-            this.room.state.players.onRemove = function(player, sessionId) {
+            this.room.state.players.onRemove = function (player, sessionId) {
                 //if the player removed (maybe killed) is not this player
                 if (sessionId !== self.room.sessionId) {
                     self.removePlayer(sessionId);
@@ -181,7 +193,9 @@ export default class PlayScene extends Phaser.Scene {
                 self.addPlayer({
                     id: this.room.sessionId,
                     x: spawnPoint.x,
-                    y: spawnPoint.y
+                    y: spawnPoint.y,
+                    num_bullets : message.num_bullets
+
                 });
             } else if (message.event == "new_player") {
                 let spawnPoint = this.map.findObject("player", obj => obj.name === `player${message.position}`);
@@ -219,7 +233,7 @@ export default class PlayScene extends Phaser.Scene {
 
     }
 
-    update() {
+    update(time, delta) {
 
         for (let id in this.players) {
             let p = this.players[id].sprite;
@@ -255,47 +269,52 @@ export default class PlayScene extends Phaser.Scene {
                 this.player.sprite.setVelocityY(300);
             }
 
-            this.input.on('pointermove', function(pointer) {
+            this.input.on('pointermove', function (pointer) {
                 this.rotatePlayer(pointer);
             }, this);
 
-            this.input.on('pointerdown', function(pointer) {
-                if (!this.shot) {
-                    this.bulletSound.play();
 
-                    let speed_x = Math.cos(this.player.sprite.rotation + Math.PI / 2) * 50;
-                    let speed_y = Math.sin(this.player.sprite.rotation + Math.PI / 2) * 50;
+            this.input.on('pointerdown', function (pointer) {
+                if (time > this.lastFired && this.player.num_bullets > 0) {
+                    if (!this.shot) {
+                        this.bulletSound.play();
 
-                    let x = this.player.sprite.x;
-                    let y = this.player.sprite.y;
-                    let distanceTravelled = 0;
-                    while (!(this.map["blockLayer"].hasTileAtWorldXY(x, y))) {
-                        x -= speed_x;
-                        y -= speed_y;
-                        distanceTravelled += Math.sqrt(speed_x * speed_x + speed_y * speed_y);
-                        if (x < -10 || x > 3200 || y < -10 || y > 3200 || distanceTravelled >= 600) {
-                            break;
+                        let speed_x = Math.cos(this.player.sprite.rotation + Math.PI / 2) * 50;
+                        let speed_y = Math.sin(this.player.sprite.rotation + Math.PI / 2) * 50;
+
+                        let x = this.player.sprite.x;
+                        let y = this.player.sprite.y;
+                        let distanceTravelled = 0;
+                        while (!(this.map["blockLayer"].hasTileAtWorldXY(x, y))) {
+                            x -= speed_x;
+                            y -= speed_y;
+                            distanceTravelled += Math.sqrt(speed_x * speed_x + speed_y * speed_y);
+                            if (x < -10 || x > 3200 || y < -10 || y > 3200 || distanceTravelled >= 600) {
+                                break;
+                            }
                         }
+
+                        // Tell the server we shot a bullet 
+                        this.room.send({
+                            action: "shoot_bullet",
+                            data: {
+                                x: this.player.sprite.x,
+                                y: this.player.sprite.y,
+                                angle: this.player.sprite.rotation,
+                                speed_x: speed_x,
+                                speed_y: speed_y,
+                                first_collision_x: x,
+                                first_collision_y: y
+                            }
+                        });
+
+                        this.shot = true;
+
+                        this.lastFired = time + this.shootingRate;
                     }
-
-                    // Tell the server we shot a bullet 
-                    this.room.send({
-                        action: "shoot_bullet",
-                        data: {
-                            x: this.player.sprite.x,
-                            y: this.player.sprite.y,
-                            angle: this.player.sprite.rotation,
-                            speed_x: speed_x,
-                            speed_y: speed_y,
-                            first_collision_x: x,
-                            first_collision_y: y
-                        }
-                    });
-
-                    this.shot = true;
-
                 }
             }, this);
+
 
             this.shot = false;
 
@@ -323,6 +342,7 @@ export default class PlayScene extends Phaser.Scene {
             this.player.sprite.setCollideWorldBounds(true);
             this.cameras.main.startFollow(this.player.sprite);
             this.physics.add.collider(this.player.sprite, this.map["blockLayer"]);
+            this.player.num_bullets = data.num_bullets;
         } else {
             this.players[id] = {};
             this.players[id].sprite = sprite;
