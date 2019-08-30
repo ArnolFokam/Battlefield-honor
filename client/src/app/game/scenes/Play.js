@@ -100,7 +100,7 @@ export default class PlayScene extends Phaser.Scene {
             this.buttonA = this.add.image(window.innerWidth * (9 / 10)-50, window.innerHeight * (9 / 10) - 50, "button").setInteractive();
             this.buttonA.setScrollFactor(0).setDepth(this.gameDepth.HUD).setScale(2);
             
-            this.input.on('gameobjectdown', function(pointer) {
+            this.buttonA.on('pointerdown', function(pointer) {
                 if (this.player.num_bullets > 0 && this.player.sprite) {
                     if (!this.shot) {
                         this.bulletSound.play();
