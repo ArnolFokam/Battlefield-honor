@@ -12,6 +12,7 @@ type("number")(Player.prototype, "rotation");
 type("number")(Player.prototype, "health");
 type("string")(Player.prototype, "name");
 type("number")(Player.prototype, "num_bullets");
+type("number")(Player.prototype, "kills");
 
 class Bullet extends Schema {}
 type("number")(Bullet.prototype, "x");
@@ -34,6 +35,7 @@ class State extends Schema {
         this.nextPosition = 0;
         this.bullet_index = 0;
         this.players_online = 0;
+        this.killsList = [];
     }
 
     getNextPosition() {
@@ -83,6 +85,7 @@ class State extends Schema {
         this.players[id].name = name.toString();
         this.players_online = this.players_online + 1;
         this.players[id].num_bullets = 50;
+        this.players[id].kills = 0;
     }
 
     getPlayer(id) {
@@ -115,11 +118,15 @@ class State extends Schema {
 
 
 schema.defineTypes(State, {
-  players: { map: Player }
+    players: {
+        map: Player
+    }
 });
 
 schema.defineTypes(State, {
-  bullets: { map: Bullet }
+    bullets: {
+        map: Bullet
+    }
 });
 
 exports.outdoor = class extends colyseus.Room {
@@ -130,7 +137,7 @@ exports.outdoor = class extends colyseus.Room {
     }
 
     onJoin(client, options) {
-        let nextPosition = this.state.getNextPosition();        
+        let nextPosition = this.state.getNextPosition();
         this.state.createPlayer(client.sessionId, options.name);
         this.send(client, {
             event: "start_position",
@@ -148,7 +155,23 @@ exports.outdoor = class extends colyseus.Room {
             except: client
         });
 
-        this.broadcast({event: "players_online", number: this.state.players_online });
+        this.broadcast({
+            event: "players_online",
+            number: this.state.players_online
+        });
+
+        this.state.killsList.length = 0;
+        for (let id in this.state.players) {
+            this.state.killsList.push({
+                name: this.state.players[id].name,
+                kills: this.state.players[id].kills
+            });
+        }
+        this.state.killsList.sort((a, b) => (a.kills < b.kills) ? 1 : (a.kills === b.kills) ? ((a.name > b.name) ? 1 : -1) : -1);
+        this.broadcast({
+            event: "leaderboard",
+            killsList: this.state.killsList
+        });
 
     }
 
@@ -172,14 +195,25 @@ exports.outdoor = class extends colyseus.Room {
                 }
                 break;
 
+            case "reload":
+                if (this.state.getPlayer(client.sessionId) == undefined) return;
+                this.state.players[client.sessionId].num_bullets = 50;
+                this.send(client, {
+                    event: "reloading"
+                });
+                break;
+
             default:
                 break;
         }
     }
     onLeave(client, consented) {
-        if(this.state.getPlayer(client.sessionId)){
+        if (this.state.getPlayer(client.sessionId)) {
             this.state.removePlayer(client.sessionId);
-            this.broadcast({event: "players_online", number: this.state.players_online });
+            this.broadcast({
+                event: "players_online",
+                number: this.state.players_online
+            });
         }
     }
 
@@ -187,7 +221,6 @@ exports.outdoor = class extends colyseus.Room {
 
     // Update the bullets 60 times per frame and send updates 
     ServerGameLoop() {
-
         for (let i in this.state.bullets) {
             this.state.moveBullet(i);
             //remove the bullet if it goes too far
@@ -196,23 +229,45 @@ exports.outdoor = class extends colyseus.Room {
             } else {
                 //check if this bullet is close enough to hit a player
                 for (let id in this.state.players) {
-                    if (this.state.bullets[i].owner_id != id ) {
+                    if (this.state.bullets[i].owner_id != id) {
                         //because your own bullet shouldn't kill hit
                         let dx = this.state.players[id].x - this.state.bullets[i].x;
                         let dy = this.state.players[id].y - this.state.bullets[i].y;
                         let dist = Math.sqrt(dx * dx + dy * dy);
                         if (dist < 30) {
-                            this.broadcast( {
+                            this.broadcast({
                                 event: "hit",
                                 punished_id: id,
                                 punisher_id: this.state.bullets[i].owner_id
                             });
 
                             if (this.state.damagePlayer(id, 10) <= 0) {
-                                this.send(this.getClientById(id), { event: "dead" });
-                                this.send(this.getClientById(this.state.bullets[i].owner_id), { event: "good_shot" });
+                                this.send(this.getClientById(id), {
+                                    event: "dead"
+                                });
+                                this.send(this.getClientById(this.state.bullets[i].owner_id), {
+                                    event: "good_shot"
+                                });
+                                this.state.players[this.state.bullets[i].owner_id].kills += 1;
                                 this.state.removePlayer(id);
-                                this.broadcast({event: "players_online", number: this.state.players_online });
+                                this.broadcast({
+                                    event: "players_online",
+                                    number: this.state.players_online
+                                });
+
+                                this.state.killsList.length = 0;
+                                for (let id in this.state.players) {
+                                    this.state.killsList.push({
+                                        name: this.state.players[id].name,
+                                        kills: this.state.players[id].kills
+                                    });
+                                }
+                                this.state.killsList.sort((a, b) => (a.kills < b.kills) ? 1 : (a.kills === b.kills) ? ((a.name > b.name) ? 1 : -1) : -1);
+                                this.broadcast({
+                                    event: "leaderboard",
+                                    killsList: this.state.killsList
+                                });
+
                             }
                             this.state.removeBullet(i);
                             return;

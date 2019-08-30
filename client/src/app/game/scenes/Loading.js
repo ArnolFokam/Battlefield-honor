@@ -7,6 +7,8 @@ import cursorImage from "./../../assets/cursor.cur";
 import bulletSound from "./../../assets/sound/bulletsound.mp3";
 import backgroundMusic1 from "./../../assets/sound/backgroundMusic1.mp3";
 import backgroundMusic2 from "./../../assets/sound/backgroundMusic2.mp3";
+import gunReload from "./../../assets/sound/gunReload.mp3";
+import noBullets from "./../../assets/sound/noBullets.mp3";
 import PlayScene from "./Play";
 import Button from "./../../assets/images/button.png"
 import virtualjoystick from "./../plugins/rexvirtualjoystickplugin.min.js";
@@ -28,6 +30,8 @@ export default class LoadingScene extends Phaser.Scene {
         let self = this;
 
         this.load.audio('bulletSound', bulletSound);
+        this.load.audio('noBullets', noBullets);
+        this.load.audio('gunReload', gunReload);
         this.load.audio('backgroundMusic', [backgroundMusic1, backgroundMusic2]);
         this.load.image("tiles", outdoorImage);
         this.load.tilemapTiledJSON("map", outdoor);
