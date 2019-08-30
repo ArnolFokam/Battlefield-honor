@@ -1,5 +1,9 @@
 import Phaser from "phaser";
+import {
+    mobileAndTabletcheck
+} from "./../../utils/utils.js"
 import * as Colyseus from "colyseus.js";
+
 
 
 const endpoint = (window.location.hostname === "localhost") ? `ws://localhost:${process.env.PORT}` : `${window.location.protocol.replace("http", "ws")}//${window.location.hostname}:${process.env.PORT}`;
@@ -37,6 +41,7 @@ export default class PlayScene extends Phaser.Scene {
     }
 
     init(params) {
+        this.scale.lockOrientation("landscape");
         this.player.name = params.name;
         this.map;
     }
@@ -44,6 +49,7 @@ export default class PlayScene extends Phaser.Scene {
     preload() {}
 
     create() {
+
 
         this.backgroundMusic = this.sound.add('backgroundMusic');
         this.backgroundMusic.setLoop(true).play();
@@ -72,7 +78,71 @@ export default class PlayScene extends Phaser.Scene {
 
         this.connect();
 
-        this.cursors = this.input.keyboard.createCursorKeys();
+
+
+        if (mobileAndTabletcheck()) {
+            this.joyStick = this.plugins.get('rexvirtualjoystickplugin').add(this, {
+                y: window.innerHeight * (9 / 10) - 50,
+                x: window.innerWidth * (1.5 / 10)+ 25,
+                radius: 50,
+                base: this.add.graphics().fillStyle(0x888888).fillCircle(0, 0, 50).setDepth(this.gameDepth.HUD).setAlpha(0.4),
+                thumb: this.add.graphics().fillStyle(0xcccccc).fillCircle(0, 0, 25).setDepth(this.gameDepth.HUD).setAlpha(0.4),
+                // dir: '8dir',   // 'up&down'|0|'left&right'|1|'4dir'|2|'8dir'|3
+                // forceMin: 16,
+                // enable: true
+            });
+
+            this.joyStick.setScrollFactor(0);
+
+            this.joystickCursors = this.joyStick.createCursorKeys();
+            this.dumpJoyStickState();
+
+            this.buttonA = this.add.image(window.innerWidth * (9 / 10)-50, window.innerHeight * (9 / 10) - 50, "button").setInteractive();
+            this.buttonA.setScrollFactor(0).setDepth(this.gameDepth.HUD).setScale(2);
+            
+            this.input.on('gameobjectdown', function(pointer) {
+                if (this.player.num_bullets > 0 && this.player.sprite) {
+                    if (!this.shot) {
+                        this.bulletSound.play();
+
+                        let speed_x = Math.cos(this.player.sprite.rotation + Math.PI / 2) * 50;
+                        let speed_y = Math.sin(this.player.sprite.rotation + Math.PI / 2) * 50;
+
+                        let x = this.player.sprite.x;
+                        let y = this.player.sprite.y;
+                        let distanceTravelled = 0;
+                        while (!(this.map["blockLayer"].hasTileAtWorldXY(x, y))) {
+                            x -= speed_x;
+                            y -= speed_y;
+                            distanceTravelled += Math.sqrt(speed_x * speed_x + speed_y * speed_y);
+                            if (x < -10 || x > 3200 || y < -10 || y > 3200 || distanceTravelled >= 600) {
+                                break;
+                            }
+                        }
+
+                        // Tell the server we shot a bullet 
+                        this.room.send({
+                            action: "shoot_bullet",
+                            data: {
+                                x: this.player.sprite.x,
+                                y: this.player.sprite.y,
+                                angle: this.player.sprite.rotation,
+                                speed_x: speed_x,
+                                speed_y: speed_y,
+                                first_collision_x: x,
+                                first_collision_y: y
+                            }
+                        });
+
+                        this.shot = true;
+
+                        //this.lastFired = time + this.shootingRate;
+                    }
+                }
+            }, this);
+        } else {
+            this.cursors = this.input.keyboard.createCursorKeys();
+        }
     }
 
     connect() {
@@ -102,7 +172,7 @@ export default class PlayScene extends Phaser.Scene {
                             rotation: data.rotation || 0,
                             name: data.name
                         });
-                        console.log(data);
+
                         let player_sprite = self.players[id].sprite;
                         player_sprite.target_x = state.players[id].x; // Update target, not actual position, so we can interpolate
                         player_sprite.target_y = state.players[id].y;
@@ -117,7 +187,7 @@ export default class PlayScene extends Phaser.Scene {
 
                 if (sessionId != this.room.sessionId) {
                     // If you want to track changes on a child object inside a map, this is a common pattern:
-                    player.onChange = function (changes) {
+                    player.onChange = function(changes) {
                         changes.forEach(change => {
                             if (change.field == "rotation") {
                                 self.players[sessionId].sprite.target_rotation = change.value;
@@ -130,7 +200,7 @@ export default class PlayScene extends Phaser.Scene {
                     };
 
                 } else {
-                    player.onChange = function (changes) {
+                    player.onChange = function(changes) {
                         changes.forEach(change => {
                             if (change.field == "num_bullets") {
                                 self.player.num_bullets = change.value;
@@ -144,7 +214,7 @@ export default class PlayScene extends Phaser.Scene {
                 self.bullets[bullet.index] = self.physics.add.sprite(bullet.x, bullet.y, 'bullet').setRotation(bullet.angle);
 
                 // If you want to track changes on a child object inside a map, this is a common pattern:
-                bullet.onChange = function (changes) {
+                bullet.onChange = function(changes) {
                     changes.forEach(change => {
                         if (change.field == "x") {
                             self.bullets[bullet.index].x = change.value;
@@ -159,13 +229,13 @@ export default class PlayScene extends Phaser.Scene {
 
             }
 
-            this.room.state.bullets.onRemove = function (bullet, sessionId) {
+            this.room.state.bullets.onRemove = function(bullet, sessionId) {
                 self.removeBullet(bullet.index);
             }
 
 
 
-            this.room.state.players.onRemove = function (player, sessionId) {
+            this.room.state.players.onRemove = function(player, sessionId) {
                 //if the player removed (maybe killed) is not this player
                 if (sessionId !== self.room.sessionId) {
                     self.removePlayer(sessionId);
@@ -194,7 +264,7 @@ export default class PlayScene extends Phaser.Scene {
                     id: this.room.sessionId,
                     x: spawnPoint.x,
                     y: spawnPoint.y,
-                    num_bullets : message.num_bullets
+                    num_bullets: message.num_bullets
 
                 });
             } else if (message.event == "new_player") {
@@ -251,70 +321,23 @@ export default class PlayScene extends Phaser.Scene {
         }
 
         if (this.player.sprite) {
+
+
             this.player.sprite.setVelocity(0);
 
-            if (this.cursors.left.isDown) {
-                this.rotatePlayer();
-                this.player.sprite.setVelocityX(-300);
-            } else if (this.cursors.right.isDown) {
-                this.rotatePlayer();
-                this.player.sprite.setVelocityX(300);
+            let self = this;
+            if (this.cursors) {
+                this.moveMyPlayer();
+                this.input.on('pointerdown', function(pointer) {
+                    this.shoot(time);
+                }, this);
             }
 
-            if (this.cursors.up.isDown) {
-                this.rotatePlayer();
-                this.player.sprite.setVelocityY(-300);
-            } else if (this.cursors.down.isDown) {
-                this.rotatePlayer();
-                this.player.sprite.setVelocityY(300);
+            if (this.joyStick) {
+
+                this.dumpJoyStickState();
+
             }
-
-            this.input.on('pointermove', function (pointer) {
-                this.rotatePlayer(pointer);
-            }, this);
-
-
-            this.input.on('pointerdown', function (pointer) {
-                if (time > this.lastFired && this.player.num_bullets > 0) {
-                    if (!this.shot) {
-                        this.bulletSound.play();
-
-                        let speed_x = Math.cos(this.player.sprite.rotation + Math.PI / 2) * 50;
-                        let speed_y = Math.sin(this.player.sprite.rotation + Math.PI / 2) * 50;
-
-                        let x = this.player.sprite.x;
-                        let y = this.player.sprite.y;
-                        let distanceTravelled = 0;
-                        while (!(this.map["blockLayer"].hasTileAtWorldXY(x, y))) {
-                            x -= speed_x;
-                            y -= speed_y;
-                            distanceTravelled += Math.sqrt(speed_x * speed_x + speed_y * speed_y);
-                            if (x < -10 || x > 3200 || y < -10 || y > 3200 || distanceTravelled >= 600) {
-                                break;
-                            }
-                        }
-
-                        // Tell the server we shot a bullet 
-                        this.room.send({
-                            action: "shoot_bullet",
-                            data: {
-                                x: this.player.sprite.x,
-                                y: this.player.sprite.y,
-                                angle: this.player.sprite.rotation,
-                                speed_x: speed_x,
-                                speed_y: speed_y,
-                                first_collision_x: x,
-                                first_collision_y: y
-                            }
-                        });
-
-                        this.shot = true;
-
-                        this.lastFired = time + this.shootingRate;
-                    }
-                }
-            }, this);
-
 
             this.shot = false;
 
@@ -354,6 +377,29 @@ export default class PlayScene extends Phaser.Scene {
         }
     }
 
+    moveMyPlayer() {
+
+        if (this.cursors.left.isDown) {
+            this.rotatePlayer();
+            this.player.sprite.setVelocityX(-300);
+        } else if (this.cursors.right.isDown) {
+            this.rotatePlayer();
+            this.player.sprite.setVelocityX(300);
+        }
+
+        if (this.cursors.up.isDown) {
+            this.rotatePlayer();
+            this.player.sprite.setVelocityY(-300);
+        } else if (this.cursors.down.isDown) {
+            this.rotatePlayer();
+            this.player.sprite.setVelocityY(300);
+        }
+
+        this.input.on('pointermove', function(pointer) {
+            this.rotatePlayer(pointer);
+        }, this);
+    }
+
     removePlayer(id) {
         this.players[id].sprite.destroy();
         this.players[id].name.destroy();
@@ -369,6 +415,77 @@ export default class PlayScene extends Phaser.Scene {
     removeBullet(index) {
         this.bullets[index].destroy();
         delete this.bullets[index];
+    }
+
+    dumpJoyStickState(pointer = this.input.activePointer) {
+
+        if (this.player.sprite) {
+
+            if (this.joyStick.rotation == 0) {
+                return;
+            }
+
+            this.player.sprite.setRotation(this.joyStick.rotation + (90 * Math.PI / 180));
+
+            if (this.joystickCursors.left.isDown) {
+
+                this.player.sprite.setVelocityX(-300);
+
+            } else if (this.joystickCursors.right.isDown) {
+
+                this.player.sprite.setVelocityX(300);
+            }
+
+            if (this.joystickCursors.up.isDown) {
+
+                this.player.sprite.setVelocityY(-300);
+            } else if (this.joystickCursors.down.isDown) {
+
+                this.player.sprite.setVelocityY(300);
+            }
+        }
+
+    }
+
+    shoot(time) {
+        if (time > this.lastFired && this.player.num_bullets > 0) {
+            if (!this.shot) {
+                this.bulletSound.play();
+
+                let speed_x = Math.cos(this.player.sprite.rotation + Math.PI / 2) * 50;
+                let speed_y = Math.sin(this.player.sprite.rotation + Math.PI / 2) * 50;
+
+                let x = this.player.sprite.x;
+                let y = this.player.sprite.y;
+                let distanceTravelled = 0;
+                while (!(this.map["blockLayer"].hasTileAtWorldXY(x, y))) {
+                    x -= speed_x;
+                    y -= speed_y;
+                    distanceTravelled += Math.sqrt(speed_x * speed_x + speed_y * speed_y);
+                    if (x < -10 || x > 3200 || y < -10 || y > 3200 || distanceTravelled >= 600) {
+                        break;
+                    }
+                }
+
+                // Tell the server we shot a bullet 
+                this.room.send({
+                    action: "shoot_bullet",
+                    data: {
+                        x: this.player.sprite.x,
+                        y: this.player.sprite.y,
+                        angle: this.player.sprite.rotation,
+                        speed_x: speed_x,
+                        speed_y: speed_y,
+                        first_collision_x: x,
+                        first_collision_y: y
+                    }
+                });
+
+                this.shot = true;
+
+                this.lastFired = time + this.shootingRate;
+            }
+        }
     }
 
 }
