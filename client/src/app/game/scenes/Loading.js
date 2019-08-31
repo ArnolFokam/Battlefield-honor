@@ -1,6 +1,8 @@
 import Phaser from "phaser";
 import playerImage from "./../../assets/images/player.png"
 import outdoor from "./../../assets/tilemaps/battle-royale.json";
+import outdoor1 from "./../../assets/tilemaps/map1.json";
+import outdoor2 from "./../../assets/tilemaps/map2.json";
 import outdoorImage from "./../../assets/tilemaps/battle-royale.png";
 import bulletImage from "./../../assets/images/bullet.png";
 import cursorImage from "./../../assets/cursor.cur";
@@ -35,6 +37,8 @@ export default class LoadingScene extends Phaser.Scene {
         this.load.audio('backgroundMusic', [backgroundMusic1, backgroundMusic2]);
         this.load.image("tiles", outdoorImage);
         this.load.tilemapTiledJSON("map", outdoor);
+        this.load.tilemapTiledJSON("map1", outdoor1);
+        this.load.tilemapTiledJSON("map2", outdoor2);
         this.load.image('player', playerImage);
         this.load.image('bullet', bulletImage);
         this.load.image('button', Button);

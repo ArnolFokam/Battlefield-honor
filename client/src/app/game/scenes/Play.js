@@ -32,6 +32,8 @@ export default class PlayScene extends Phaser.Scene {
     isReloading = false;
     bulletsBefore = 0;
     buttonA = null;
+    maps = [];
+    mapReceived = false;
 
     constructor() {
         super("play");
@@ -48,6 +50,8 @@ export default class PlayScene extends Phaser.Scene {
         this.scale.lockOrientation("landscape");
         this.player.name = params.name;
         this.map;
+        this.mapReceived = false;
+        this.maps = ["map", "map1", "map2"];
     }
 
     preload() {}
@@ -62,28 +66,8 @@ export default class PlayScene extends Phaser.Scene {
         this.gunReload = this.sound.add('gunReload');
 
         this.input.setDefaultCursor('crosshair');
-        this.map = this.make.tilemap({
-            key: "map"
-        });
-
-
-        const tileset = this.map.addTilesetImage("battle-royale", "tiles");
-        const floorLayer = this.map.createStaticLayer("floor", tileset, 0, 0);
-        this.map["herbeLayer"] = this.map.createStaticLayer("herbe", tileset, 0, 0);
-        this.map["blockLayer"] = this.map.createStaticLayer("block", tileset, 0, 0);
-        //this.map["wallLayer"] = this.map.createStaticLayer("wall", tileset, 0, 0);
-        this.map["blockLayer"].setCollisionByProperty({
-            collide: true
-        });
-        this.map["herbeLayer"].setAlpha(0.8).setDepth(this.gameDepth.herbe);
-
-
-        this.cameras.main.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
-        this.physics.world.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
 
         this.connect();
-
-
 
         if (mobileAndTabletcheck()) {
             this.joyStick = this.plugins.get('rexvirtualjoystickplugin').add(this, {
@@ -197,9 +181,6 @@ export default class PlayScene extends Phaser.Scene {
                             self.bullets[bullet.index].y = change.value;
                         }
                     });
-                    /*if (self.map["blockLayer"].hasTileAtWorldXY(self.bullets[bullet.index].x, self.bullets[bullet.index].y)) {
-                        self.removeBullet(bullet.index);
-                    }*/
                 };
 
             }
@@ -272,6 +253,27 @@ export default class PlayScene extends Phaser.Scene {
                 self.events.emit("reload", self.player.num_bullets);
             } else if (message.event == "leaderboard") {
                 self.events.emit("leaderboard", message.killsList);
+            } else if (message.event == "map_num") {
+                if (!self.mapReceived) {
+                    self.map = self.make.tilemap({
+                        key: self.maps[message.mapNum]
+                    });
+                    const tileset = self.map.addTilesetImage("battle-royale", "tiles");
+                    const floorLayer = self.map.createStaticLayer("floor", tileset, 0, 0);
+                    if (message.mapNum == 0) {
+                        self.map["herbeLayer"] = self.map.createStaticLayer("herbe", tileset, 0, 0).setAlpha(0.8).setDepth(self.gameDepth.herbe);
+                    } else if (message.mapNum == 1) {
+                        self.map["bordureLayer"] = self.map.createStaticLayer("bordure", tileset, 0, 0);
+                    }
+                    self.map["blockLayer"] = self.map.createStaticLayer("block", tileset, 0, 0);
+                    self.map["blockLayer"].setCollisionByProperty({
+                        collide: true
+                    });
+                    self.cameras.main.setBounds(0, 0, self.map.widthInPixels, self.map.heightInPixels);
+                    self.physics.world.setBounds(0, 0, self.map.widthInPixels, self.map.heightInPixels);
+
+                    self.mapReceived = true;
+                }
             } else {
                 console.log(`${message} is an unknown message`);
             }
