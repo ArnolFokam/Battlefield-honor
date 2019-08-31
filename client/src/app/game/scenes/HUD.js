@@ -280,7 +280,7 @@ export default class HUDScene extends Phaser.Scene {
             this.player3Kills.setText((killsList[2] == undefined) ? "0" : killsList[1].kills);
             this.player4Name.setText("4. " + ((killsList[3] == undefined) ? "" : killsList[3].name).substr(0, 13));
             this.player4Kills.setText((killsList[3] == undefined) ? "0" : killsList[1].kills);
-            this.player5Name.setText("2. " + ((killsList[4] == undefined) ? "" : killsList[4].name).substr(0, 13));
+            this.player5Name.setText("5. " + ((killsList[4] == undefined) ? "" : killsList[4].name).substr(0, 13));
             this.player5Kills.setText((killsList[4] == undefined) ? "0" : killsList[1].kills);
         }, this);
     }
