@@ -84,7 +84,7 @@ class State extends Schema {
         this.players[id].health = 100;
         this.players[id].name = name.toString();
         this.players_online = this.players_online + 1;
-        this.players[id].num_bullets = 50;
+        this.players[id].num_bullets = 20;
         this.players[id].kills = 0;
     }
 
@@ -197,7 +197,7 @@ exports.outdoor = class extends colyseus.Room {
 
             case "reload":
                 if (this.state.getPlayer(client.sessionId) == undefined) return;
-                this.state.players[client.sessionId].num_bullets = 50;
+                this.state.players[client.sessionId].num_bullets = 20;
                 this.send(client, {
                     event: "reloading"
                 });

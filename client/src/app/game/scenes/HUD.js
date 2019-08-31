@@ -45,9 +45,11 @@ export default class HUDScene extends Phaser.Scene {
     create() {
 
         if (mobileAndTabletcheck()) {
-            this.scale = 0.75;
+            this.scale = 0.85;
+            this.reloadText = "Tap the player to reload";
         } else {
             this.scale = 1;
+            this.reloadText = "Press R to reload";
         }
 
         //  Grab a reference to the Game Scene
@@ -79,7 +81,7 @@ export default class HUDScene extends Phaser.Scene {
         this.healthBar = new HealthBar(PlayScene, 40 * this.scale, 40 * this.scale, 200 * this.scale, 30 * this.scale, true);
 
         //Listen for events from it
-        PlayScene.events.on("addKills", function () {
+        PlayScene.events.on("addKills", function() {
 
             this.score += 1;
 
@@ -87,7 +89,7 @@ export default class HUDScene extends Phaser.Scene {
 
         }, this);
 
-        PlayScene.events.on("damage", function () {
+        PlayScene.events.on("damage", function() {
 
             this.healthBar.decrease(10);
 
@@ -115,25 +117,28 @@ export default class HUDScene extends Phaser.Scene {
             },
         }).setScrollFactor(0).setDepth(PlayScene.gameDepth.HUD).setScale(this.scale);
 
-        PlayScene.events.on("players_in_game", function (number) {
+        PlayScene.events.on("players_in_game", function(number) {
             this.connected_HUD.setText(number)
         }, this);
 
         this.reloadModal = this.add.graphics().fillStyle(0x000000, 0.5).fillRoundedRect(this.width - 80 * this.scale, this.height - 112 * this.scale, 160 * this.scale, 192 * this.scale, 10 * this.scale).setActive(false).setVisible(false).setDepth(PlayScene.gameDepth.HUD);
+
         this.reloadArc = this.add.graphics().setActive(false).setVisible(false).setDepth(PlayScene.gameDepth.HUD);
+
         this.reloadingText = this.add.text(this.width - 64 * this.scale, this.height - 96 * this.scale, 'Reloading...', {
             fontFamily: '"Valera Round", "Product Sans", "sans-serif"',
             fontSize: '24px',
             color: '#fff'
         }).setActive(false).setVisible(false).setDepth(PlayScene.gameDepth.HUD).setScale(this.scale);
+
         this.reloadTimeText = this.add.text(this.width - 20 * this.scale, this.height - 8 * this.scale, '', {
             fontFamily: '"Valera Round", "Product Sans", "sans-serif"',
             fontSize: '16px',
             color: '#fff'
         }).setActive(false).setVisible(false).setDepth(PlayScene.gameDepth.HUD).setScale(this.scale);
 
-        PlayScene.events.on("reload", function (num_bullets) {
-            if (num_bullets < 50) {
+        PlayScene.events.on("reload", function(num_bullets) {
+            if (num_bullets < 20) {
                 this.reloadModal.setActive(true).setVisible(true);
                 this.reloadingText.setActive(true).setVisible(true);
                 this.reloadTimer = this.time.addEvent({
@@ -141,8 +146,10 @@ export default class HUDScene extends Phaser.Scene {
                     callback: () => {
                         let angle = 45 * this.reloadTimer.getRepeatCount();
                         this.reloadArc.clear();
-                        let bullets = Math.floor((50 - num_bullets) * this.reloadTimer.getOverallProgress() + num_bullets);
-                        this.bulletsNumText.setText(bullets);
+                        let bullets = Math.floor((20 - num_bullets) * this.reloadTimer.getOverallProgress() + num_bullets);
+                        this.bulletsNumText.setText(("0" + bullets).slice(-2) + "/20");
+                        this.reloadButtonText.destroy();
+                        this.bulletsNumText.setColor("#fff");
                         let reloadTime = this.reloadTimer.getOverallProgress() * 5.0;
                         this.reloadTimeText.setText(reloadTime.toString().substr(0, 3) + ' s').setActive(true).setVisible(true);
                         this.reloadArc.setActive(true).setVisible(true).lineStyle(6, 0xffffff).beginPath().arc(this.width, this.height, 50 * this.scale, Phaser.Math.DegToRad(angle + 90), Phaser.Math.DegToRad(angle + 180), true).strokePath();
@@ -163,22 +170,39 @@ export default class HUDScene extends Phaser.Scene {
             }
         }, this);
 
-        this.add.graphics().fillStyle(0x000000, 0.5).fillRoundedRect(this.width - 96 * this.scale, window.innerHeight - 144 * this.scale, 192 * this.scale, 128 * this.scale, 10 * this.scale).setDepth(PlayScene.gameDepth.HUD);
-        this.add.text(this.width - 42 * this.scale, window.innerHeight - 120 * this.scale, 'Bullets:', {
+
+        this.add.graphics().fillStyle(0x000000, 0.5).fillRoundedRect(this.width - 131 * this.scale, window.innerHeight - 144 * this.scale, 250 * this.scale, 128 * this.scale, 10 * this.scale).setDepth(PlayScene.gameDepth.HUD);
+
+        this.add.text(this.width - 42 * this.scale, window.innerHeight - 120 * this.scale, 'Bullets', {
             fontFamily: '"Valera Round", "Product Sans", "sans-serif"',
             fontSize: '24px',
             fontStyle: 'bold',
             color: '#fff'
         }).setDepth(PlayScene.gameDepth.HUD).setScale(this.scale);
-        this.bulletsNumText = this.add.text(this.width - 16 * this.scale, window.innerHeight - 80 * this.scale, '50', {
+
+
+        this.bulletsNumText = this.add.text(this.width - 50 * this.scale, window.innerHeight - 84 * this.scale, '20/20', {
             fontFamily: '"Valera Round", "Product Sans", "sans-serif"',
             fontSize: '32px',
             color: '#fff'
         }).setDepth(PlayScene.gameDepth.HUD).setScale(this.scale);
 
-        PlayScene.events.on("bullets_num_changed", function (num_bullets) {
+        PlayScene.events.on("bullets_num_changed", function(num_bullets) {
             if (this.bulletsNumText) {
-                this.bulletsNumText.setText(num_bullets);
+                this.bulletsNumText.setText(("0" + num_bullets).slice(-2) + "/20");
+                if (num_bullets == 0) {
+                    //the position for mobile should be (this.width - 105 * this.scale)
+                    this.reloadButtonText = this.add.text(this.width - 75 * this.scale, window.innerHeight - 47 * this.scale, this.reloadText, {
+                        fontFamily: '"Valera Round", "Product Sans", "sans-serif"',
+                        fontSize: '18px',
+                        fontStyle: 'bold',
+                        color: '#f00'
+                    }).setDepth(PlayScene.gameDepth.HUD).setScale(this.scale);
+                    
+                    this.bulletsNumText.setColor("#f00");
+                } else {
+                    this.bulletsNumText.setColor("#fff");
+                }
             }
         }, this);
 
@@ -245,7 +269,7 @@ export default class HUDScene extends Phaser.Scene {
             color: '#fff'
         }).setDepth(PlayScene.gameDepth.HUD).setScale(this.scale);
 
-        PlayScene.events.on("leaderboard", function (killsList) {
+        PlayScene.events.on("leaderboard", function(killsList) {
             this.player1Name.setText("1. " + killsList[0].name.substr(0, 13));
             this.player1Kills.setText(killsList[0].kills);
             this.player2Name.setText("2. " + ((killsList[1] == undefined) ? "" : killsList[1].name).substr(0, 13));

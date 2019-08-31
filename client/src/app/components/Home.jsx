@@ -91,9 +91,9 @@ class Home extends React.Component {
         <div className="col-md-4 col-xs-6 how-to"> 
           <h2>How to play</h2>
           <ul>
-            <li>Use arrow keys for displacement</li>
-            <li>Click the mouse to shoot</li>
-            <li>The position of the mouse gives the orientation of the player</li>
+            <li>Use arrow keys for displacement and joystick for mobile</li>
+            <li>Click the mouse to shoot or the button on te right</li>
+            <li>The position of the mouse gives the orientation of the player (except touch screens)</li>
             <li>Bring your freinds and enjoy </li>
           </ul>
         </div>
