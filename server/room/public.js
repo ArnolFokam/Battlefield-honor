@@ -190,7 +190,7 @@ exports.outdoor = class extends colyseus.Room {
 
             case "shoot_bullet":
                 if (this.state.getPlayer(client.sessionId) == undefined) return;
-                if (Math.abs(message.data.speed_x) <= 100 && Math.abs(message.data.speed_y) <= 100) {
+                if (Math.abs(message.data.speed_x) <= 100 && Math.abs(message.data.speed_y) <= 100 && this.state.players[client.sessionId].num_bullets > 0) {
                     this.state.createBullet(client.sessionId, message.data);
                 }
                 break;
@@ -215,6 +215,19 @@ exports.outdoor = class extends colyseus.Room {
                 number: this.state.players_online
             });
         }
+
+        this.state.killsList.length = 0;
+        for (let id in this.state.players) {
+            this.state.killsList.push({
+                name: this.state.players[id].name,
+                kills: this.state.players[id].kills
+            });
+        }
+        this.state.killsList.sort((a, b) => (a.kills < b.kills) ? 1 : (a.kills === b.kills) ? ((a.name > b.name) ? 1 : -1) : -1);
+        this.broadcast({
+            event: "leaderboard",
+            killsList: this.state.killsList
+        });
     }
 
     onDispose() {}

@@ -485,6 +485,7 @@ export default class PlayScene extends Phaser.Scene {
             }
         } else if (time > this.lastFired && this.player.num_bullets == 0 && !this.isReloading) {
             this.noBullets.play();
+            this.lastFired = time + this.shootingRate;
         }
     }
 

@@ -20,6 +20,7 @@ export default class HUDScene extends Phaser.Scene {
     reloadingText = null;
     bulletsNumText = null;
     scale = 1;
+    reloadButtonTextOffset = 75;
 
     player1Name = null;
     player1Kills = null;
@@ -47,9 +48,11 @@ export default class HUDScene extends Phaser.Scene {
         if (mobileAndTabletcheck()) {
             this.scale = 0.85;
             this.reloadText = "Tap the player to reload";
+            this.reloadButtonTextOffset = 105;
         } else {
             this.scale = 1;
             this.reloadText = "Press R to reload";
+            this.reloadButtonTextOffset = 75;
         }
 
         //  Grab a reference to the Game Scene
@@ -190,9 +193,8 @@ export default class HUDScene extends Phaser.Scene {
         PlayScene.events.on("bullets_num_changed", function(num_bullets) {
             if (this.bulletsNumText) {
                 this.bulletsNumText.setText(("0" + num_bullets).slice(-2) + "/20");
-                if (num_bullets == 0) {
-                    //the position for mobile should be (this.width - 105 * this.scale)
-                    this.reloadButtonText = this.add.text(this.width - 75 * this.scale, window.innerHeight - 47 * this.scale, this.reloadText, {
+                if (num_bullets <= 0) {
+                    this.reloadButtonText = this.add.text(this.width - this.reloadButtonTextOffset * this.scale, window.innerHeight - 47 * this.scale, this.reloadText, {
                         fontFamily: '"Valera Round", "Product Sans", "sans-serif"',
                         fontSize: '18px',
                         fontStyle: 'bold',
