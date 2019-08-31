@@ -38,9 +38,9 @@ export default class PlayScene extends Phaser.Scene {
     constructor() {
         super("play");
         this.gameDepth = {
-            player: 0,
-            herbe: 1,
-            HUD: 2
+            player: 1,
+            herbe: 2,
+            HUD: 3
         }
 
         this.client = new Colyseus.Client(endpoint);
