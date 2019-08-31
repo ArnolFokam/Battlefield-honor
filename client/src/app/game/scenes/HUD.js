@@ -151,7 +151,9 @@ export default class HUDScene extends Phaser.Scene {
                         this.reloadArc.clear();
                         let bullets = Math.floor((20 - num_bullets) * this.reloadTimer.getOverallProgress() + num_bullets);
                         this.bulletsNumText.setText(("0" + bullets).slice(-2) + "/20");
-                        this.reloadButtonText.destroy();
+                        if (this.reloadButtonText) {
+                            this.reloadButtonText.destroy();
+                        }
                         this.bulletsNumText.setColor("#fff");
                         let reloadTime = this.reloadTimer.getOverallProgress() * 5.0;
                         this.reloadTimeText.setText(reloadTime.toString().substr(0, 3) + ' s').setActive(true).setVisible(true);
@@ -277,11 +279,11 @@ export default class HUDScene extends Phaser.Scene {
             this.player2Name.setText("2. " + ((killsList[1] == undefined) ? "" : killsList[1].name).substr(0, 13));
             this.player2Kills.setText((killsList[1] == undefined) ? "0" : killsList[1].kills);
             this.player3Name.setText("3. " + ((killsList[2] == undefined) ? "" : killsList[2].name).substr(0, 13));
-            this.player3Kills.setText((killsList[2] == undefined) ? "0" : killsList[1].kills);
+            this.player3Kills.setText((killsList[2] == undefined) ? "0" : killsList[2].kills);
             this.player4Name.setText("4. " + ((killsList[3] == undefined) ? "" : killsList[3].name).substr(0, 13));
-            this.player4Kills.setText((killsList[3] == undefined) ? "0" : killsList[1].kills);
+            this.player4Kills.setText((killsList[3] == undefined) ? "0" : killsList[3].kills);
             this.player5Name.setText("5. " + ((killsList[4] == undefined) ? "" : killsList[4].name).substr(0, 13));
-            this.player5Kills.setText((killsList[4] == undefined) ? "0" : killsList[1].kills);
+            this.player5Kills.setText((killsList[4] == undefined) ? "0" : killsList[4].kills);
         }, this);
     }
 }

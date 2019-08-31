@@ -36,7 +36,9 @@ class State extends Schema {
         this.bullet_index = 0;
         this.players_online = 0;
         this.killsList = [];
-        this.mapNum = Math.floor(Math.random() * 3); ;
+        this.mapSizes = [3200, 4800, 3840];
+        this.mapNum = Math.floor(Math.random() * 3);
+        this.mapSize = this.mapSizes[this.mapNum];
     }
 
     getNextPosition() {
@@ -243,7 +245,7 @@ exports.outdoor = class extends colyseus.Room {
         for (let i in this.state.bullets) {
             this.state.moveBullet(i);
             //remove the bullet if it goes too far
-            if (this.state.bullets[i].x < -10 || this.state.bullets[i].x > 3200 || this.state.bullets[i].y < -10 || this.state.bullets[i].y > 3200 || this.state.bullets[i].distanceTravelled >= 600 || (this.state.bullets[i].x == this.state.bullets[i].first_collision_x && this.state.bullets[i].y == this.state.bullets[i].first_collision_y)) {
+            if (this.state.bullets[i].x < -10 || this.state.bullets[i].x > this.state.mapSize || this.state.bullets[i].y < -10 || this.state.bullets[i].y > this.state.mapSize || this.state.bullets[i].distanceTravelled >= 600 || (this.state.bullets[i].x == this.state.bullets[i].first_collision_x && this.state.bullets[i].y == this.state.bullets[i].first_collision_y)) {
                 this.state.removeBullet(i);
             } else {
                 //check if this bullet is close enough to hit a player

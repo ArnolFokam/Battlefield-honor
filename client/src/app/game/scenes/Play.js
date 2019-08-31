@@ -6,10 +6,10 @@ import * as Colyseus from "colyseus.js";
 
 
 
-//const endpoint = (window.location.hostname === "localhost") ? `ws://localhost:${process.env.PORT}` : `${window.location.protocol.replace("http", "ws")}//${window.location.hostname}:${process.env.PORT}`;
+const endpoint = (window.location.hostname === "localhost") ? `ws://localhost:${process.env.PORT}` : `${window.location.protocol.replace("http", "ws")}//${window.location.hostname}:${process.env.PORT}`;
 
 //for heroku remote deployment...to run it locally comment the code below and uncomment the code at the top
-const endpoint = (window.location.protocol === "http:") ? `ws://${process.env.APP_URL}` : `wss://${process.env.APP_URL}`
+// const endpoint = (window.location.protocol === "http:") ? `ws://${process.env.APP_URL}` : `wss://${process.env.APP_URL}`
 
 
 
@@ -34,6 +34,8 @@ export default class PlayScene extends Phaser.Scene {
     buttonA = null;
     maps = [];
     mapReceived = false;
+    mapSizes = [];
+    mapSize = 3200;
 
     constructor() {
         super("play");
@@ -42,7 +44,10 @@ export default class PlayScene extends Phaser.Scene {
             herbe: 2,
             HUD: 3
         }
-
+        this.mapReceived = false;
+        this.maps = ["map", "map1", "map2"];
+        this.mapSizes = [3200, 4800, 3840];
+        this.mapSize = 3200;
         this.client = new Colyseus.Client(endpoint);
     }
 
@@ -50,8 +55,6 @@ export default class PlayScene extends Phaser.Scene {
         this.scale.lockOrientation("landscape");
         this.player.name = params.name;
         this.map;
-        this.mapReceived = false;
-        this.maps = ["map", "map1", "map2"];
     }
 
     preload() {}
@@ -255,9 +258,11 @@ export default class PlayScene extends Phaser.Scene {
                 self.events.emit("leaderboard", message.killsList);
             } else if (message.event == "map_num") {
                 if (!self.mapReceived) {
+                    self.mapSize = self.mapSizes[message.mapNum];
                     self.map = self.make.tilemap({
                         key: self.maps[message.mapNum]
                     });
+
                     const tileset = self.map.addTilesetImage("battle-royale", "tiles");
                     const floorLayer = self.map.createStaticLayer("floor", tileset, 0, 0);
                     if (message.mapNum == 0) {
@@ -462,7 +467,7 @@ export default class PlayScene extends Phaser.Scene {
                     x -= speed_x;
                     y -= speed_y;
                     distanceTravelled += Math.sqrt(speed_x * speed_x + speed_y * speed_y);
-                    if (x < -10 || x > 3200 || y < -10 || y > 3200 || distanceTravelled >= 600) {
+                    if (x < -10 || x > this.mapSize || y < -10 || y > this.mapSize || distanceTravelled >= 600) {
                         break;
                     }
                 }
