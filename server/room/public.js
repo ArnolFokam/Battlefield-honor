@@ -30,15 +30,16 @@ class State extends Schema {
     constructor() {
         super();
 
+        let mapSizes = [3200, 4800, 3840];
+
         this.players = new MapSchema();
         this.bullets = new MapSchema();
         this.nextPosition = 0;
         this.bullet_index = 0;
         this.players_online = 0;
         this.killsList = [];
-        this.mapSizes = [3200, 4800, 3840];
         this.mapNum = Math.floor(Math.random() * 3);
-        this.mapSize = this.mapSizes[this.mapNum];
+        this.mapSize = mapSizes[this.mapNum];
     }
 
     getNextPosition() {
@@ -140,18 +141,27 @@ exports.outdoor = class extends colyseus.Room {
     }
 
     onJoin(client, options) {
-        this.broadcast({
+
+        this.send(client, {
             event: "map_num",
             mapNum: this.state.mapNum
         });
 
         let nextPosition = this.state.getNextPosition();
+
         this.state.createPlayer(client.sessionId, options.name);
+
+        this.state.killsList.push({
+            name: options.name,
+            kills: 0
+        });
+
         this.send(client, {
             event: "start_position",
             position: nextPosition,
             players_online: this.state.players_online,
-            num_bullets: this.state.players[client.sessionId].num_bullets
+            num_bullets: this.state.players[client.sessionId].num_bullets,
+            killsList: this.state.killsList
         });
 
         this.broadcast({
@@ -166,19 +176,15 @@ exports.outdoor = class extends colyseus.Room {
         this.broadcast({
             event: "players_online",
             number: this.state.players_online
+        },{
+            except: client
         });
 
-        this.state.killsList.length = 0;
-        for (let id in this.state.players) {
-            this.state.killsList.push({
-                name: this.state.players[id].name,
-                kills: this.state.players[id].kills
-            });
-        }
-        this.state.killsList.sort((a, b) => (a.kills < b.kills) ? 1 : (a.kills === b.kills) ? ((a.name > b.name) ? 1 : -1) : -1);
         this.broadcast({
             event: "leaderboard",
             killsList: this.state.killsList
+        },{
+            except: client
         });
 
     }
@@ -266,10 +272,13 @@ exports.outdoor = class extends colyseus.Room {
                                 this.send(this.getClientById(id), {
                                     event: "dead"
                                 });
+
                                 this.send(this.getClientById(this.state.bullets[i].owner_id), {
                                     event: "good_shot"
                                 });
+
                                 this.state.players[this.state.bullets[i].owner_id].kills += 1;
+
                                 this.state.removePlayer(id);
                                 this.broadcast({
                                     event: "players_online",
@@ -283,11 +292,13 @@ exports.outdoor = class extends colyseus.Room {
                                         kills: this.state.players[id].kills
                                     });
                                 }
+
                                 this.state.killsList.sort((a, b) => (a.kills < b.kills) ? 1 : (a.kills === b.kills) ? ((a.name > b.name) ? 1 : -1) : -1);
                                 this.broadcast({
                                     event: "leaderboard",
                                     killsList: this.state.killsList
                                 });
+
 
                             }
                             this.state.removeBullet(i);

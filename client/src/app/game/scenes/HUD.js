@@ -11,27 +11,35 @@ export default class HUDScene extends Phaser.Scene {
     name; //when declare outside a function, they are treated as private properties of the class and are accessed with this.[property name]
     score = 0;
     connected = 0;
-    reloadArc = null;
-    reloadTimer = null;
-    reloadTimeText = null;
+
     width = window.innerWidth / 2;
     height = window.innerHeight / 2;
-    reloadModal = null;
-    reloadingText = null;
-    bulletsNumText = null;
     scale = 1;
+
     reloadButtonTextOffset = 75;
 
-    player1Name = null;
-    player1Kills = null;
-    player2Name = null;
-    player2Kills = null;
-    player3Name = null;
-    player3Kills = null;
-    player4Name = null;
-    player4Kills = null;
-    player5Name = null;
-    player5Kills = null;
+    topPlayers = {
+        "player1": {
+            name: null,
+            kills: null
+        },
+        "player2": {
+            name: null,
+            kills: null
+        },
+        "player3": {
+            name: null,
+            kills: null
+        },
+        "player4": {
+            name: null,
+            kills: null
+        },
+        "player5": {
+            name: null,
+            kills: null
+        }
+    }
 
     constructor() {
         super('HUD');
@@ -40,7 +48,8 @@ export default class HUDScene extends Phaser.Scene {
     init(params) {
 
         this.name = params.name;
-        this.connected = params.players_online;
+        this.initialConnected = params.players_online;
+        this.initialKillsList = params.killsList;
     }
 
     create() {
@@ -68,6 +77,7 @@ export default class HUDScene extends Phaser.Scene {
                 y: 10 * this.scale
             },
         }).setScrollFactor(0).setDepth(PlayScene.gameDepth.HUD).setScale(this.scale);
+        delete this.name;
 
         let score = this.add.text(0 * this.scale, 100 * this.scale, "number of kills : " + this.score, {
             fontFamily: '"Varela Round", sans-serif',
@@ -98,7 +108,7 @@ export default class HUDScene extends Phaser.Scene {
 
         }, this);
 
-        this.connected_HUD = this.add.text(0 * this.scale, window.innerHeight - 100 * this.scale, this.connected, {
+        this.connected_HUD = this.add.text(0 * this.scale, window.innerHeight - 100 * this.scale, this.initialConnected, {
             fontFamily: '"Varela Round", sans-serif',
             fontSize: "40px",
             fill: "#FFFFFF",
@@ -109,6 +119,8 @@ export default class HUDScene extends Phaser.Scene {
                 y: 10 * this.scale
             },
         }).setScrollFactor(0).setDepth(PlayScene.gameDepth.HUD).setOrigin(0).setScale(this.scale);
+
+        delete this.initialConnected;
 
         this.add.text(0 * this.scale, window.innerHeight - 50 * this.scale, "online", {
             fontFamily: '"Varela Round", sans-serif',
@@ -202,13 +214,14 @@ export default class HUDScene extends Phaser.Scene {
                         fontStyle: 'bold',
                         color: '#f00'
                     }).setDepth(PlayScene.gameDepth.HUD).setScale(this.scale);
-                    
+
                     this.bulletsNumText.setColor("#f00");
                 } else {
                     this.bulletsNumText.setColor("#fff");
                 }
             }
         }, this);
+
 
         this.add.graphics().fillStyle(0x000000, 0.5).fillRoundedRect(window.innerWidth - 192 * this.scale, 16, 176 * this.scale, 192 * this.scale, 10 * this.scale).setDepth(PlayScene.gameDepth.HUD);
         this.add.text(window.innerWidth - 155 * this.scale, 36 * this.scale, 'Leaderboard', {
@@ -217,73 +230,43 @@ export default class HUDScene extends Phaser.Scene {
             fontStyle: 'bold',
             color: '#fff'
         }).setDepth(PlayScene.gameDepth.HUD).setScale(this.scale);
+
         this.add.text(window.innerWidth - 62 * this.scale, 62 * this.scale, 'Kills', {
             fontFamily: '"Valera Round", "Product Sans", "sans-serif"',
             fontSize: '12px',
             color: '#fff'
         }).setDepth(PlayScene.gameDepth.HUD).setScale(this.scale);
-        this.player1Name = this.add.text(window.innerWidth - 176 * this.scale, 90 * this.scale, '1. ', {
-            fontFamily: '"Valera Round", "Product Sans", "sans-serif"',
-            fontSize: '12px',
-            color: '#fff'
-        }).setDepth(PlayScene.gameDepth.HUD).setScale(this.scale);
-        this.player1Kills = this.add.text(window.innerWidth - 48 * this.scale, 90 * this.scale, '0', {
-            fontFamily: '"Valera Round", "Product Sans", "sans-serif"',
-            fontSize: '12px',
-            color: '#fff'
-        }).setDepth(PlayScene.gameDepth.HUD).setScale(this.scale);
-        this.player2Name = this.add.text(window.innerWidth - 176 * this.scale, 114 * this.scale, '2. ', {
-            fontFamily: '"Valera Round", "Product Sans", "sans-serif"',
-            fontSize: '12px',
-            color: '#fff'
-        }).setDepth(PlayScene.gameDepth.HUD).setScale(this.scale);
-        this.player2Kills = this.add.text(window.innerWidth - 48 * this.scale, 114 * this.scale, '0', {
-            fontFamily: '"Valera Round", "Product Sans", "sans-serif"',
-            fontSize: '12px',
-            color: '#fff'
-        }).setDepth(PlayScene.gameDepth.HUD).setScale(this.scale);
-        this.player3Name = this.add.text(window.innerWidth - 176 * this.scale, 138 * this.scale, '3. ', {
-            fontFamily: '"Valera Round", "Product Sans", "sans-serif"',
-            fontSize: '12px',
-            color: '#fff'
-        }).setDepth(PlayScene.gameDepth.HUD).setScale(this.scale);
-        this.player3Kills = this.add.text(window.innerWidth - 48 * this.scale, 138 * this.scale, '0', {
-            fontFamily: '"Valera Round", "Product Sans", "sans-serif"',
-            fontSize: '12px',
-            color: '#fff'
-        }).setDepth(PlayScene.gameDepth.HUD).setScale(this.scale);
-        this.player4Name = this.add.text(window.innerWidth - 176 * this.scale, 162 * this.scale, '4. ', {
-            fontFamily: '"Valera Round", "Product Sans", "sans-serif"',
-            fontSize: '12px',
-            color: '#fff'
-        }).setDepth(PlayScene.gameDepth.HUD).setScale(this.scale);
-        this.player4Kills = this.add.text(window.innerWidth - 48 * this.scale, 162 * this.scale, '0', {
-            fontFamily: '"Valera Round", "Product Sans", "sans-serif"',
-            fontSize: '12px',
-            color: '#fff'
-        }).setDepth(PlayScene.gameDepth.HUD).setScale(this.scale);
-        this.player5Name = this.add.text(window.innerWidth - 176 * this.scale, 186 * this.scale, '5. ', {
-            fontFamily: '"Valera Round", "Product Sans", "sans-serif"',
-            fontSize: '12px',
-            color: '#fff'
-        }).setDepth(PlayScene.gameDepth.HUD).setScale(this.scale);
-        this.player5Kills = this.add.text(window.innerWidth - 48 * this.scale, 186 * this.scale, '0', {
-            fontFamily: '"Valera Round", "Product Sans", "sans-serif"',
-            fontSize: '12px',
-            color: '#fff'
-        }).setDepth(PlayScene.gameDepth.HUD).setScale(this.scale);
+
+        for (let i = 1, j = 90; i < 6; i++) {
+            this.topPlayers[`player${i}`].name = this.add.text(window.innerWidth - 176 * this.scale, j * this.scale, `${i}.`, {
+                fontFamily: '"Valera Round", "Product Sans", "sans-serif"',
+                fontSize: '12px',
+                color: '#fff'
+            }).setDepth(PlayScene.gameDepth.HUD).setScale(this.scale);
+
+            this.topPlayers[`player${i}`].kills = this.add.text(window.innerWidth - 48 * this.scale, j * this.scale, '0', {
+                fontFamily: '"Valera Round", "Product Sans", "sans-serif"',
+                fontSize: '12px',
+                color: '#fff'
+            }).setDepth(PlayScene.gameDepth.HUD).setScale(this.scale);
+
+            j = j + 24;
+        }
+
+        this.updateLeaderboard(this.initialKillsList);
+        delete this.initialKillsList;
+
 
         PlayScene.events.on("leaderboard", function(killsList) {
-            this.player1Name.setText("1. " + killsList[0].name.substr(0, 13));
-            this.player1Kills.setText(killsList[0].kills);
-            this.player2Name.setText("2. " + ((killsList[1] == undefined) ? "" : killsList[1].name).substr(0, 13));
-            this.player2Kills.setText((killsList[1] == undefined) ? "0" : killsList[1].kills);
-            this.player3Name.setText("3. " + ((killsList[2] == undefined) ? "" : killsList[2].name).substr(0, 13));
-            this.player3Kills.setText((killsList[2] == undefined) ? "0" : killsList[2].kills);
-            this.player4Name.setText("4. " + ((killsList[3] == undefined) ? "" : killsList[3].name).substr(0, 13));
-            this.player4Kills.setText((killsList[3] == undefined) ? "0" : killsList[3].kills);
-            this.player5Name.setText("5. " + ((killsList[4] == undefined) ? "" : killsList[4].name).substr(0, 13));
-            this.player5Kills.setText((killsList[4] == undefined) ? "0" : killsList[4].kills);
+            this.updateLeaderboard(killsList)
         }, this);
+
+    }
+
+    updateLeaderboard(killsList){
+        for (let i = 1; i < 6; i++) {
+            this.topPlayers[`player${i}`].name.setText(`${i}. ` + ( killsList[i-1]  ?  killsList[i-1].name : "").substr(0, 13));
+            this.topPlayers[`player${i}`].kills.setText( killsList[i-1] ? killsList[i-1].kills : "0");
+        }
     }
 }

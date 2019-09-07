@@ -1,0 +1,16 @@
+.btn {
+        display: inline-block;
+        text-transform: uppercase;
+        font-weight: 600;
+        color: #fff;
+        border: 1px solid rgba(0,0,0,0.3);
+        border-bottom-width: 3px;
+
+        &:hover {
+            border-color: rgba(0,0,0,0.5);
+        }
+
+        &:active {
+            border-color: rgba(0,0,0,0.9);
+        }
+}

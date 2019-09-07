@@ -9,7 +9,7 @@ import * as Colyseus from "colyseus.js";
 //const endpoint = (window.location.hostname === "localhost") ? `ws://localhost:${process.env.PORT}` : `${window.location.protocol.replace("http", "ws")}//${window.location.hostname}:${process.env.PORT}`;
 
 //for heroku remote deployment...to run it locally comment the code below and uncomment the code at the top
- const endpoint = (window.location.protocol === "http:") ? `ws://${process.env.APP_URL}` : `wss://${process.env.APP_URL}`
+const endpoint = (window.location.protocol === "http:") ? `ws://${process.env.APP_URL}` : `wss://${process.env.APP_URL}`
 
 
 
@@ -20,22 +20,20 @@ export default class PlayScene extends Phaser.Scene {
     player = {
         name: ""
     };
-    cursors = null;
     roomJoined = false;
     room = null;
-    backgroundMusic = null;
-    bulletSound = null;
     closingMessage = "You have been disconnected from the server";
+
     lastFired = 0;
     shootingRate = 100;
-    RKey = null;
+    RKey;
     isReloading = false;
     bulletsBefore = 0;
-    buttonA = null;
+
     maps = [];
     mapReceived = false;
     mapSizes = [];
-    mapSize = 3200;
+    mapSize;
 
     constructor() {
         super("play");
@@ -62,7 +60,7 @@ export default class PlayScene extends Phaser.Scene {
     create() {
 
         this.backgroundMusic = this.sound.add('backgroundMusic');
-        this.backgroundMusic.setLoop(true).play();
+        //this.backgroundMusic.setLoop(true).play();
 
         this.bulletSound = this.sound.add('bulletSound');
         this.noBullets = this.sound.add('noBullets');
@@ -212,13 +210,16 @@ export default class PlayScene extends Phaser.Scene {
 
                 self.scene.launch("HUD", {
                     name: self.player.name,
-                    players_online: message.players_online
+                    players_online: message.players_online,
+                    killsList: message.killsList
                 }); //later we need to load dirrent componets of the HUD when its data to display is available
+
 
                 this.room.send({
                     action: "initial_position",
                     data: position
                 });
+                
                 self.addPlayer({
                     id: this.room.sessionId,
                     x: spawnPoint.x,
@@ -226,7 +227,9 @@ export default class PlayScene extends Phaser.Scene {
                     num_bullets: message.num_bullets
 
                 });
-            } else if (message.event == "new_player") {
+            }
+
+             else if (message.event == "new_player") {
                 let spawnPoint = this.map.findObject("player", obj => obj.name === `player${message.position}`);
                 let p = self.addPlayer({
                     x: spawnPoint.x,
@@ -235,28 +238,42 @@ export default class PlayScene extends Phaser.Scene {
                     rotation: message.rotation || 0,
                     name: message.name
                 });
-            } else if (message.event == "hit") {
+            }
+
+             else if (message.event == "hit") {
                 if (message.punisher_id == self.room.sessionId) {
                     //self.events.emit("addHits");
                 } else if (message.punished_id == self.room.sessionId) {
                     self.events.emit("damage");
                 }
-            } else if (message.event == "dead") {
+            } 
+
+            else if (message.event == "dead") {
                 self.closingMessage = "You have been killed.\nTo renter the game, reload the page";
                 this.player.sprite.destroy();
                 delete this.player;
                 alert(self.closingMessage);
                 //maybe implement the possibility to the see the game after being killed
-            } else if (message.event == "good_shot") {
+            }
+
+             else if (message.event == "good_shot") {
                 self.events.emit("addKills");
-            } else if (message.event == "players_online") {
+            } 
+
+            else if (message.event == "players_online") {
                 self.events.emit("players_in_game", message.number);
-            } else if (message.event == "reloading") {
+            } 
+
+            else if (message.event == "reloading") {
                 this.isReloading = true;
                 self.events.emit("reload", self.player.num_bullets);
-            } else if (message.event == "leaderboard") {
+            } 
+
+            else if (message.event == "leaderboard") {
                 self.events.emit("leaderboard", message.killsList);
-            } else if (message.event == "map_num") {
+            } 
+
+            else if (message.event == "map_num") {
                 if (!self.mapReceived) {
                     self.mapSize = self.mapSizes[message.mapNum];
                     self.map = self.make.tilemap({
@@ -265,15 +282,18 @@ export default class PlayScene extends Phaser.Scene {
 
                     const tileset = self.map.addTilesetImage("battle-royale", "tiles");
                     const floorLayer = self.map.createStaticLayer("floor", tileset, 0, 0);
+
                     if (message.mapNum == 0) {
                         self.map["herbeLayer"] = self.map.createStaticLayer("herbe", tileset, 0, 0).setAlpha(0.8).setDepth(self.gameDepth.herbe);
                     } else if (message.mapNum == 1) {
                         self.map["bordureLayer"] = self.map.createStaticLayer("bordure", tileset, 0, 0);
                     }
+
                     self.map["blockLayer"] = self.map.createStaticLayer("block", tileset, 0, 0);
                     self.map["blockLayer"].setCollisionByProperty({
                         collide: true
                     });
+
                     self.cameras.main.setBounds(0, 0, self.map.widthInPixels, self.map.heightInPixels);
                     self.physics.world.setBounds(0, 0, self.map.widthInPixels, self.map.heightInPixels);
 
@@ -379,6 +399,7 @@ export default class PlayScene extends Phaser.Scene {
                 fontSize: '16px',
                 fill: '#fff'
             }).setOrigin(0, 0);
+            this.players[id].name.setDepth(this.gameDepth.player);
             this.players[id].sprite.setRotation(data.rotation);
         }
     }
@@ -431,29 +452,31 @@ export default class PlayScene extends Phaser.Scene {
                 return;
             }
 
+            let force = Math.min(this.joyStick.force, 50) / 50;
+
             this.player.sprite.setRotation(this.joyStick.rotation + (90 * Math.PI / 180));
 
             if (this.joystickCursors.left.isDown) {
 
-                this.player.sprite.setVelocityX(-300);
+                this.player.sprite.setVelocityX(-300*force);
 
             } else if (this.joystickCursors.right.isDown) {
 
-                this.player.sprite.setVelocityX(300);
+                this.player.sprite.setVelocityX(300*force);
             }
 
             if (this.joystickCursors.up.isDown) {
 
-                this.player.sprite.setVelocityY(-300);
+                this.player.sprite.setVelocityY(-300*force);
             } else if (this.joystickCursors.down.isDown) {
 
-                this.player.sprite.setVelocityY(300);
+                this.player.sprite.setVelocityY(300*force);
             }
         }
 
     }
 
-    shoot(time) {
+    shoot(time) {top
         if (time > this.lastFired && this.player.num_bullets > 0 && !this.isReloading) {
             if (!this.shot) {
 
