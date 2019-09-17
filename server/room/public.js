@@ -5,7 +5,12 @@ const MapSchema = schema.MapSchema;
 //const ArraySchema = schema.ArraySchema;
 const type = schema.type;
 
-class Player extends Schema {}
+class Player extends Schema {
+    constructor(){
+        super();
+        this.shield = 0;
+    }
+}
 type("number")(Player.prototype, "x");
 type("number")(Player.prototype, "y");
 type("number")(Player.prototype, "rotation");
@@ -106,6 +111,10 @@ class State extends Schema {
         this.players[id].y = position.y;
     }
 
+    getPlayerHealth(id){
+        return this.players[id].health
+    }
+
     movePlayer(id, movement) {
         let player = this.players[id];
         player.x = movement.x;
@@ -114,8 +123,13 @@ class State extends Schema {
     }
 
     damagePlayer(id, damage) {
-        this.players[id].health -= damage;
-        return this.players[id].health;
+        let real_damage = Math.abs(Math.min(0, this.players[id].shield - damage));
+        this.players[id].health = Math.max(0,  this.players[id].health - real_damage);
+        this.players[id].shield = Math.max(0,  this.players[id].shield - damage);
+    }
+
+    healPlayer(id, healing) {
+        this.players[id].health = Math.min(100,  this.players[id].health + healing);
     }
 
 }
@@ -217,7 +231,12 @@ exports.outdoor = class extends colyseus.Room {
                 });
                 break;
 
+            case "activate_powerup":
+                this.activatePowerup(message.data, client.sessionId);
+                break;
+
             default:
+                console.log(message.action + " is an unknown action");
                 break;
         }
     }
@@ -246,6 +265,29 @@ exports.outdoor = class extends colyseus.Room {
 
     onDispose() {}
 
+    activatePowerup(powerup, player_id){
+        switch(powerup){
+            case "health":
+                this.state.healPlayer(player_id, 20);
+                this.send(this.getClientById(player_id), {
+                    event: "health_changed",
+                    health: this.state.getPlayerHealth(player_id)
+                });
+                break;
+
+            case "shield":
+                this.state.getPlayer(player_id).shield = Math.min(50, this.state.getPlayer(player_id).shield + 25);
+                this.send(this.getClientById(player_id), {
+                    event: "shield_changed",
+                    shield: this.state.getPlayer(player_id).shield
+                });
+                break;
+
+            default:
+                break;
+        }
+    }
+
     // Update the bullets 60 times per frame and send updates 
     ServerGameLoop() {
         for (let i in this.state.bullets) {
@@ -262,13 +304,17 @@ exports.outdoor = class extends colyseus.Room {
                         let dy = this.state.players[id].y - this.state.bullets[i].y;
                         let dist = Math.sqrt(dx * dx + dy * dy);
                         if (dist < 30) {
+                            this.state.damagePlayer(id, 10)
                             this.broadcast({
                                 event: "hit",
-                                punished_id: id,
+                                punished: {
+                                    id: id,
+                                    health: this.state.getPlayerHealth(id)
+                                },
                                 punisher_id: this.state.bullets[i].owner_id
                             });
 
-                            if (this.state.damagePlayer(id, 10) <= 0) {
+                            if (this.state.getPlayerHealth(id) <= 0) {
                                 this.send(this.getClientById(id), {
                                     event: "dead"
                                 });

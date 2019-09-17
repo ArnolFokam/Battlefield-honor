@@ -1,15 +1,16 @@
 import Phaser from "phaser";
 import {
     mobileAndTabletcheck
-} from "./../../utils/utils.js"
+} from "./../../utils/utils.js";
+import Powerups from "./../objects/powerups.js"
 import * as Colyseus from "colyseus.js";
 
 
 
-const endpoint = (window.location.hostname === "localhost") ? `ws://localhost:${process.env.PORT}` : `${window.location.protocol.replace("http", "ws")}//${window.location.hostname}:${process.env.PORT}`;
+//const endpoint = (window.location.hostname === "localhost") ? `ws://localhost:${process.env.PORT}` : `${window.location.protocol.replace("http", "ws")}//${window.location.hostname}:${process.env.PORT}`;
 
 //for heroku remote deployment...to run it locally comment the code below and uncomment the code at the top
-//const endpoint = (window.location.protocol === "http:") ? `ws://${process.env.APP_URL}` : `wss://${process.env.APP_URL}`
+const endpoint = (window.location.protocol === "http:") ? `ws://${process.env.APP_URL}` : `wss://${process.env.APP_URL}`
 
 
 
@@ -95,10 +96,21 @@ export default class PlayScene extends Phaser.Scene {
             this.RKey = this.input.keyboard.addKey('R');
         }
 
+        this.powerups = new Powerups({ scene: this });
+
         let HUDScene = this.scene.get('HUD');
         HUDScene.events.on("reload_finished", function() {
             this.isReloading = false;
         }, this);
+
+        this.test1 = this.physics.add.image( 200, 200, "healthPowerup").setDepth(this.gameDepth.player);
+        this.test1.type = "health";
+
+        this.test2 = this.physics.add.image( 150, 200, "shieldPowerup").setDepth(this.gameDepth.player);
+        this.test2.type = "shield";
+
+        this.test3 = this.physics.add.image( 280, 240, "blinkPowerup").setDepth(this.gameDepth.player);
+        this.test3.type = "blink";
     }
 
     connect() {
@@ -243,8 +255,8 @@ export default class PlayScene extends Phaser.Scene {
              else if (message.event == "hit") {
                 if (message.punisher_id == self.room.sessionId) {
                     //self.events.emit("addHits");
-                } else if (message.punished_id == self.room.sessionId) {
-                    self.events.emit("damage");
+                } else if (message.punished.id == self.room.sessionId) {
+                    self.events.emit("health_changed", message.punished.health);
                 }
             } 
 
@@ -299,7 +311,15 @@ export default class PlayScene extends Phaser.Scene {
 
                     self.mapReceived = true;
                 }
-            } else {
+            }
+
+            else if(message.event == "health_changed"){
+                self.events.emit("health_changed", message.health);
+            }
+            else if(message.event == "shield_changed"){
+                self.events.emit("shield_changed", message.shield);
+            }
+            else {
                 console.log(`${message} is an unknown message`);
             }
         });
@@ -383,11 +403,28 @@ export default class PlayScene extends Phaser.Scene {
         let sprite = this.physics.add.sprite(data.x, data.y, "player").setSize(60, 80).setScale(0.8).setDepth(this.gameDepth.player);
 
         if (id == this.room.sessionId) {
+            let self = this;
             this.player.sprite = sprite;
             this.player.sprite.setTint("0xff0000");
             this.player.sprite.setCollideWorldBounds(true);
             this.cameras.main.startFollow(this.player.sprite);
             this.physics.add.collider(this.player.sprite, this.map["blockLayer"]);
+
+            this.physics.add.overlap(this.player.sprite, this.test1, ()=> {
+                this.powerups.collectItem(this.test1.type);
+                this.test1.destroy();
+            });
+
+            this.physics.add.overlap(this.player.sprite, this.test2, ()=> {
+                this.powerups.collectItem(this.test2.type);
+                this.test2.destroy();
+            });
+
+            this.physics.add.overlap(this.player.sprite, this.test3, ()=> {
+                this.powerups.collectItem(this.test3.type);
+                this.test3.destroy();
+            });
+
             this.player.num_bullets = data.num_bullets;
             if(mobileAndTabletcheck()){
                 this.player.sprite.setInteractive();

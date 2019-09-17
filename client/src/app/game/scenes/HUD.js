@@ -1,4 +1,6 @@
 import HealthBar from "./../UI/components/healthBar.js";
+import ShieldBar from "./../UI/components/shieldBar.js";
+
 import {
     mobileAndTabletcheck
 } from "./../../utils/utils.js"
@@ -67,7 +69,7 @@ export default class HUDScene extends Phaser.Scene {
         //  Grab a reference to the Game Scene
         let PlayScene = this.scene.get('play');
 
-        let name = this.add.text(0 * this.scale, 70 * this.scale, this.name + "'s party", {
+        let name = this.add.text(0 * this.scale, 17 * this.scale, this.name + "'s party", {
             fontFamily: '"Varela Round", sans-serif',
             fontSize: "20px",
             fill: "#FFFFFF",
@@ -79,7 +81,7 @@ export default class HUDScene extends Phaser.Scene {
         }).setScrollFactor(0).setDepth(PlayScene.gameDepth.HUD).setScale(this.scale);
         delete this.name;
 
-        let score = this.add.text(0 * this.scale, 100 * this.scale, "number of kills : " + this.score, {
+        let score = this.add.text(0 * this.scale, 130 * this.scale, "number of kills : " + this.score, {
             fontFamily: '"Varela Round", sans-serif',
             fontSize: "20px",
             fill: "#FFFFFF",
@@ -91,7 +93,12 @@ export default class HUDScene extends Phaser.Scene {
         }).setScrollFactor(0).setDepth(PlayScene.gameDepth.HUD).setScale(this.scale);
 
 
-        this.healthBar = new HealthBar(PlayScene, 40 * this.scale, 40 * this.scale, 200 * this.scale, 30 * this.scale, true);
+        this.healthBar = new HealthBar({ scene: PlayScene, x: 80 * this.scale, y: 60 * this.scale, width: 200 * this.scale, height: 30 * this.scale, fixed: true });
+        this.add.image(50 * this.scale, 75 * this.scale, "healthPowerup").setScale(0.7);
+
+        this.shieldBar = new ShieldBar({ scene: PlayScene, x: 80 * this.scale, y: 110 * this.scale, width: 200 * this.scale, height: 20 * this.scale, fixed: true });
+        this.add.image(50 * this.scale, 120 * this.scale, "shieldPowerup").setScale(0.7);
+
 
         //Listen for events from it
         PlayScene.events.on("addKills", function() {
@@ -102,9 +109,15 @@ export default class HUDScene extends Phaser.Scene {
 
         }, this);
 
-        PlayScene.events.on("damage", function() {
+        PlayScene.events.on("health_changed", function(amount) {
 
-            this.healthBar.decrease(10);
+            this.healthBar.setTo(amount);
+
+        }, this);
+
+        PlayScene.events.on("shield_changed", function(amount) {
+
+            this.shieldBar.setTo(amount);
 
         }, this);
 
@@ -261,12 +274,68 @@ export default class HUDScene extends Phaser.Scene {
             this.updateLeaderboard(killsList)
         }, this);
 
+        this.add.image( window.innerWidth - 60, window.innerHeight/2 - 95, "healthPowerupHUD").setDepth(PlayScene.gameDepth.HUD).setScale(this.scale).setAlpha(0.6).setInteractive().on("pointerdown", () => {
+            PlayScene.powerups.useItem("health");
+        }).on("pointerover", () => {
+            this.input.setDefaultCursor('pointer');
+        }).on("pointerout", () => {
+            this.input.setDefaultCursor('crosshair');
+        });
+        this.add.graphics().fillCircle(window.innerWidth - 20, window.innerHeight/2  - 135, 15).setDepth(PlayScene.gameDepth.HUD).setAlpha(0.7);
+        this.healthItems = this.add.text(window.innerWidth - 20* this.scale - 5, window.innerHeight/2  - 135* this.scale - 8, '0', {
+            fontFamily: '"Valera Round", "Product Sans", "sans-serif"',
+            fontSize: '16px',
+            fontStyle: 'bold',
+            color: '#fff'
+        }).setDepth(PlayScene.gameDepth.HUD).setScale(this.scale);
+
+
+
+        this.add.image( window.innerWidth - 60, window.innerHeight/2 , "blinkPowerupHUD").setDepth(PlayScene.gameDepth.HUD).setScale(this.scale).setAlpha(0.6).setInteractive().on("pointerdown", () => {
+            PlayScene.powerups.useItem("blink");
+        }).on("pointerover", () => {
+            this.input.setDefaultCursor('pointer');
+        }).on("pointerout", () => {
+            this.input.setDefaultCursor('crosshair');
+        });
+        this.add.graphics().fillCircle(window.innerWidth - 20, window.innerHeight/2  - 40, 15).setDepth(PlayScene.gameDepth.HUD).setAlpha(0.7);
+        this.blinkItems = this.add.text(window.innerWidth - 20* this.scale - 5, window.innerHeight/2  - 40* this.scale - 8, '0', {
+            fontFamily: '"Valera Round", "Product Sans", "sans-serif"',
+            fontSize: '16px',
+            fontStyle: 'bold',
+            color: '#fff'
+        }).setDepth(PlayScene.gameDepth.HUD).setScale(this.scale);
+
+
+
+        this.add.image( window.innerWidth - 60, window.innerHeight/2 + 95, "shieldPowerupHUD").setDepth(PlayScene.gameDepth.HUD).setScale(this.scale).setAlpha(0.6).setInteractive().on("pointerdown", () => {
+            PlayScene.powerups.useItem("shield");
+        }).on("pointerover", () => {
+            this.input.setDefaultCursor('pointer');
+        }).on("pointerout", () => {
+            this.input.setDefaultCursor('crosshair');
+        });
+        this.add.graphics().fillCircle(window.innerWidth - 20, window.innerHeight/2  + 55, 15).setDepth(PlayScene.gameDepth.HUD).setAlpha(0.7);
+        this.shieldItems = this.add.text(window.innerWidth - 20* this.scale - 5, window.innerHeight/2  + 55* this.scale - 8, '0', {
+            fontFamily: '"Valera Round", "Product Sans", "sans-serif"',
+            fontSize: '16px',
+            fontStyle: 'bold',
+            color: '#fff'
+        }).setDepth(PlayScene.gameDepth.HUD).setScale(this.scale);
+
+        PlayScene.events.on("item_changed",  function(items){
+            this.healthItems.setText(items["health"]);
+            this.shieldItems.setText(items["shield"]);
+            this.blinkItems.setText(items["blink"]);
+        }, this);
+
+
     }
 
-    updateLeaderboard(killsList){
+    updateLeaderboard(killsList) {
         for (let i = 1; i < 6; i++) {
-            this.topPlayers[`player${i}`].name.setText(`${i}. ` + ( killsList[i-1]  ?  killsList[i-1].name : "").substr(0, 13));
-            this.topPlayers[`player${i}`].kills.setText( killsList[i-1] ? killsList[i-1].kills : "0");
+            this.topPlayers[`player${i}`].name.setText(`${i}. ` + (killsList[i - 1] ? killsList[i - 1].name : "").substr(0, 13));
+            this.topPlayers[`player${i}`].kills.setText(killsList[i - 1] ? killsList[i - 1].kills : "0");
         }
     }
 }

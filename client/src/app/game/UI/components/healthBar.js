@@ -1,35 +1,8 @@
-export default class HealthBar {
-    constructor(scene, x, y, width, height, fixed) {
+import Bar from "./Bar.js";
 
-        this.x = x;
-        this.y = y;
-        this.value = 100;
-        this.width = width;
-        this.height = height;
-        this.ratio = this.width / 100;
-        this.border = {
-            size: 4,
-        }
-        this.fixed = fixed || false
-
-
-        this.bar = new Phaser.GameObjects.Graphics(scene).setDepth(scene.gameDepth.HUD);
-        this.bar.setScrollFactor(0);
-        this.draw();
-
-        scene.add.existing(this.bar);
-    }
-
-    decrease(amount) {
-        this.value -= amount;
-
-        if (this.value < 0) {
-            this.value = 0;
-        }
-
-        this.draw();
-
-        return (this.value === 0);
+export default class HealthBar extends Bar{
+    constructor(props) {
+        super(props);
     }
 
     draw() {
