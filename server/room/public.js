@@ -337,28 +337,30 @@ exports.outdoor = class extends colyseus.Room {
                                     event: "good_shot"
                                 });
 
-                                this.state.players[this.state.bullets[i].owner_id].kills += 1;
+                                //if the player's bullet hit somebody and he died before
+                                if (this.state.bullets[i].owner_id) {
+                                    this.state.players[this.state.bullets[i].owner_id].kills += 1;
 
-                                this.state.removePlayer(id);
-                                this.broadcast({
-                                    event: "players_online",
-                                    number: this.state.players_online
-                                });
+                                    this.state.removePlayer(id);
+                                    this.broadcast({
+                                        event: "players_online",
+                                        number: this.state.players_online
+                                    });
 
-                                this.state.killsList.length = 0;
-                                for (let id in this.state.players) {
-                                    this.state.killsList.push({
-                                        name: this.state.players[id].name,
-                                        kills: this.state.players[id].kills
+                                    this.state.killsList.length = 0;
+                                    for (let id in this.state.players) {
+                                        this.state.killsList.push({
+                                            name: this.state.players[id].name,
+                                            kills: this.state.players[id].kills
+                                        });
+                                    }
+
+                                    this.state.killsList.sort((a, b) => (a.kills < b.kills) ? 1 : (a.kills === b.kills) ? ((a.name > b.name) ? 1 : -1) : -1);
+                                    this.broadcast({
+                                        event: "leaderboard",
+                                        killsList: this.state.killsList
                                     });
                                 }
-
-                                this.state.killsList.sort((a, b) => (a.kills < b.kills) ? 1 : (a.kills === b.kills) ? ((a.name > b.name) ? 1 : -1) : -1);
-                                this.broadcast({
-                                    event: "leaderboard",
-                                    killsList: this.state.killsList
-                                });
-
 
                             }
                             this.state.removeBullet(i);

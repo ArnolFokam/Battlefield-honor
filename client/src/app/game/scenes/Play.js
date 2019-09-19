@@ -7,10 +7,10 @@ import * as Colyseus from "colyseus.js";
 
 
 
-const endpoint = (window.location.hostname === "localhost") ? `ws://localhost:${process.env.PORT}` : `${window.location.protocol.replace("http", "ws")}//${window.location.hostname}:${process.env.PORT}`;
+//const endpoint = (window.location.hostname === "localhost") ? `ws://localhost:${process.env.PORT}` : `${window.location.protocol.replace("http", "ws")}//${window.location.hostname}:${process.env.PORT}`;
 
 //for heroku remote deployment...to run it locally comment the code below and uncomment the code at the top
-//const endpoint = (window.location.protocol === "http:") ? `ws://${process.env.APP_URL}` : `wss://${process.env.APP_URL}`
+const endpoint = (window.location.protocol === "http:") ? `ws://${process.env.APP_URL}` : `wss://${process.env.APP_URL}`
 
 
 
@@ -61,9 +61,6 @@ export default class PlayScene extends Phaser.Scene {
     preload() {}
 
     create() {
-
-        //this.backgroundMusic = this.sound.add('backgroundMusic');
-        //this.backgroundMusic.setLoop(true).play();
 
         this.bulletSound = this.sound.add('bulletSound');
         this.noBullets = this.sound.add('noBullets');
