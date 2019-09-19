@@ -17,7 +17,7 @@ export default class ShieldBar extends Bar{
         this.bar.fillStyle(0x000000);
         this.bar.fillRect(this.x - (this.border.size / 2), this.y - (this.border.size / 2), this.width + this.border.size, this.height + this.border.size);
 
-        //  Health
+        // Shield
         this.bar.fillStyle(0xffffff);
         this.bar.fillRect(this.x, this.y, this.width, this.height);
 

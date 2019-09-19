@@ -7,6 +7,7 @@ import { connect } from 'react-redux';
 import LoadingScene from "../game/scenes/Loading";
 import PlayScene from "../game/scenes/Play";
 import HUDScene from "../game/scenes/HUD";
+import GameOverScene from "../game/scenes/GameOver";
 
 import "./../stylesheets/pages/game.scss";
 
@@ -46,7 +47,7 @@ class Game extends React.Component {
                 debug:false
             }
         },
-        scene: [ LoadingScene, PlayScene, HUDScene ]
+        scene: [ LoadingScene, PlayScene, HUDScene, GameOverScene ]
       }
 
        let game = new Phaser.Game(config);

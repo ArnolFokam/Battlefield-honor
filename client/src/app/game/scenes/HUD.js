@@ -10,9 +10,7 @@ import {
 
 export default class HUDScene extends Phaser.Scene {
 
-    name; //when declare outside a function, they are treated as private properties of the class and are accessed with this.[property name]
-    score = 0;
-    connected = 0;
+    //when declare outside a function, they are treated as private properties of the class and are accessed with this.[property name]
 
     width = window.innerWidth / 2;
     height = window.innerHeight / 2;
@@ -45,6 +43,8 @@ export default class HUDScene extends Phaser.Scene {
 
     constructor() {
         super('HUD');
+        this.name = '';
+        this.score = 0;
     }
 
     init(params) {
@@ -79,7 +79,6 @@ export default class HUDScene extends Phaser.Scene {
                 y: 10 * this.scale
             },
         }).setScrollFactor(0).setDepth(PlayScene.gameDepth.HUD).setScale(this.scale);
-        delete this.name;
 
         let score = this.add.text(0 * this.scale, 130 * this.scale, "number of kills : " + this.score, {
             fontFamily: '"Varela Round", sans-serif',

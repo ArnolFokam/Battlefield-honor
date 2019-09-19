@@ -35,6 +35,8 @@ export default class PlayScene extends Phaser.Scene {
     mapReceived = false;
     mapSizes = [];
     mapSize;
+    start_time;
+    hits = 0;
 
     constructor() {
         super("play");
@@ -60,7 +62,7 @@ export default class PlayScene extends Phaser.Scene {
 
     create() {
 
-        this.backgroundMusic = this.sound.add('backgroundMusic');
+        //this.backgroundMusic = this.sound.add('backgroundMusic');
         //this.backgroundMusic.setLoop(true).play();
 
         this.bulletSound = this.sound.add('bulletSound');
@@ -220,6 +222,8 @@ export default class PlayScene extends Phaser.Scene {
                     y: spawnPoint.y,
                 }
 
+                this.start_time = Date.now();
+
                 self.scene.launch("HUD", {
                     name: self.player.name,
                     players_online: message.players_online,
@@ -254,18 +258,25 @@ export default class PlayScene extends Phaser.Scene {
 
              else if (message.event == "hit") {
                 if (message.punisher_id == self.room.sessionId) {
-                    //self.events.emit("addHits");
+                    this.hits += 1;
                 } else if (message.punished.id == self.room.sessionId) {
                     self.events.emit("health_changed", message.punished.health);
                 }
             } 
 
             else if (message.event == "dead") {
+
                 self.closingMessage = "You have been killed.\nTo renter the game, reload the page";
-                this.player.sprite.destroy();
-                delete this.player;
-                alert(self.closingMessage);
-                //maybe implement the possibility to the see the game after being killed
+                self.player.sprite.destroy();
+                delete self.player;
+
+                self.scene.pause("play");
+
+                self.scene.launch("gameOver", {
+                    score: this.scene.get('HUD').score, 
+                    time_survived: Date.now() - this.start_time,
+                    hits: this.hits
+                });
             }
 
              else if (message.event == "good_shot") {
