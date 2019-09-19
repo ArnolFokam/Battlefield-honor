@@ -6,7 +6,7 @@ const MapSchema = schema.MapSchema;
 const type = schema.type;
 
 class Player extends Schema {
-    constructor(){
+    constructor() {
         super();
         this.shield = 0;
     }
@@ -18,6 +18,7 @@ type("number")(Player.prototype, "health");
 type("string")(Player.prototype, "name");
 type("number")(Player.prototype, "num_bullets");
 type("number")(Player.prototype, "kills");
+type("number")(Player.prototype, "alpha");
 
 class Bullet extends Schema {}
 type("number")(Bullet.prototype, "x");
@@ -95,6 +96,7 @@ class State extends Schema {
         this.players_online = this.players_online + 1;
         this.players[id].num_bullets = 20;
         this.players[id].kills = 0;
+        this.players[id].alpha = 1.0;
     }
 
     getPlayer(id) {
@@ -111,7 +113,7 @@ class State extends Schema {
         this.players[id].y = position.y;
     }
 
-    getPlayerHealth(id){
+    getPlayerHealth(id) {
         return this.players[id].health
     }
 
@@ -124,12 +126,12 @@ class State extends Schema {
 
     damagePlayer(id, damage) {
         let real_damage = Math.abs(Math.min(0, this.players[id].shield - damage));
-        this.players[id].health = Math.max(0,  this.players[id].health - real_damage);
-        this.players[id].shield = Math.max(0,  this.players[id].shield - damage);
+        this.players[id].health = Math.max(0, this.players[id].health - real_damage);
+        this.players[id].shield = Math.max(0, this.players[id].shield - damage);
     }
 
     healPlayer(id, healing) {
-        this.players[id].health = Math.min(100,  this.players[id].health + healing);
+        this.players[id].health = Math.min(100, this.players[id].health + healing);
     }
 
 }
@@ -190,14 +192,14 @@ exports.outdoor = class extends colyseus.Room {
         this.broadcast({
             event: "players_online",
             number: this.state.players_online
-        },{
+        }, {
             except: client
         });
 
         this.broadcast({
             event: "leaderboard",
             killsList: this.state.killsList
-        },{
+        }, {
             except: client
         });
 
@@ -265,8 +267,8 @@ exports.outdoor = class extends colyseus.Room {
 
     onDispose() {}
 
-    activatePowerup(powerup, player_id){
-        switch(powerup){
+    activatePowerup(powerup, player_id) {
+        switch (powerup) {
             case "health":
                 this.state.healPlayer(player_id, 20);
                 this.send(this.getClientById(player_id), {
@@ -281,6 +283,13 @@ exports.outdoor = class extends colyseus.Room {
                     event: "shield_changed",
                     shield: this.state.getPlayer(player_id).shield
                 });
+                break;
+
+            case "blink":
+                this.state.getPlayer(player_id).alpha = 0;
+                this.clock.setTimeout(() => {
+                    this.state.getPlayer(player_id).alpha = 1.0;
+                }, 10000);
                 break;
 
             default:
@@ -312,6 +321,11 @@ exports.outdoor = class extends colyseus.Room {
                                     health: this.state.getPlayerHealth(id)
                                 },
                                 punisher_id: this.state.bullets[i].owner_id
+                            });
+
+                            this.send(this.getClientById(id), {
+                                event: "shield_changed",
+                                shield: this.state.getPlayer(id).shield
                             });
 
                             if (this.state.getPlayerHealth(id) <= 0) {
