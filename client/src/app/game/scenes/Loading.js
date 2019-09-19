@@ -11,6 +11,8 @@ import blinkPowerup from "./../../assets/images/blink.png";
 import blinkPowerupHUD from "./../../assets/images/blink_HUD.png";
 import shieldPowerup from "./../../assets/images/shield.png";
 import shieldPowerupHUD from "./../../assets/images/shield_HUD.png";
+import shareButton from "./../../assets/images/HUD_share.png";
+import playAgainButton from "./../../assets/images/HUD_play_again.png";
 import cursorImage from "./../../assets/cursor.cur";
 import bulletSound from "./../../assets/sound/bulletsound.mp3";
 import backgroundMusic1 from "./../../assets/sound/backgroundMusic1.mp3";
@@ -54,6 +56,8 @@ export default class LoadingScene extends Phaser.Scene {
         this.load.image('blinkPowerupHUD', blinkPowerupHUD);
         this.load.image('shieldPowerup', shieldPowerup);
         this.load.image('shieldPowerupHUD', shieldPowerupHUD);
+        this.load.image('playAgainButton', playAgainButton);
+        this.load.image('shareButton', shareButton);
 
         this.load.plugin('rexvirtualjoystickplugin', virtualjoystick, true);
 

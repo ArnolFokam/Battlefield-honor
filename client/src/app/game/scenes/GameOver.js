@@ -25,7 +25,7 @@ export default class GameOverScene extends Phaser.Scene {
     create() {
         this.add.graphics().fillStyle(0x000000, 0.7).fillRect(0, 0, window.innerWidth, window.innerHeight);
 
-        this.statsContainer = this.add.graphics().fillStyle(0x000000, 0.85).fillRect(this.dimensions.statsContainer.x, this.dimensions.statsContainer.y, this.dimensions.statsContainer.w, this.dimensions.statsContainer.h);
+        this.statsContainer = this.add.graphics().fillStyle(0x000000, 0.7).fillRect(this.dimensions.statsContainer.x, this.dimensions.statsContainer.y, this.dimensions.statsContainer.w, this.dimensions.statsContainer.h);
 
         this.add.text(this.dimensions.statsContainer.x + this.dimensions.statsContainer.w/2, this.dimensions.statsContainer.y + 40, 'Stats', {
             fontFamily: '"Valera Round", "Product Sans", "sans-serif"',
