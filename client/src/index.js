@@ -5,14 +5,13 @@ import App from "./app/App.jsx";
 
 import reducers from "./app/reducers/index.js";
 import configureStore from './app/store/configureStore.js';
+import gameImage from "./app/assets/images/game.png";
 
 FB.ui({
     method: "feed",
-    link: "https://apps.facebook.com/risky-steps/",
-    caption: "Play Risky Steps now!!",
-    name: "My best score on Risky steps is " + 89 + "!!!!",
-    description: "I scored " + 90 + " points on Risky Steps. Can you beat my score?",
-    picture: "https://www.feronato.com/facebook/risky-steps/assets/pictures/feedpic.png"
+    link: `${process.env.APP_URL}`,
+    source: `${process.env.APP_URL}/${gameImage}`,
+    picture: `${process.env.APP_URL}/${gameImage}`
 }, function(response) {});
 
 
