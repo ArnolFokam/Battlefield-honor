@@ -98,7 +98,12 @@ export default class GameOverScene extends Phaser.Scene {
         }).on('pointerout', () => {
             this.input.setDefaultCursor('crosshair')
         }).on('pointerdown', () => {
-            this.input.setDefaultCursor('crosshair')
+            FB.ui({
+                method: "feed",
+                link: `${process.env.APP_URL}`,
+                source: `${process.env.APP_URL}/${gameImage}`,
+                picture: `${process.env.APP_URL}/${gameImage}`
+            }, function(response) {});
         });
 
     }
