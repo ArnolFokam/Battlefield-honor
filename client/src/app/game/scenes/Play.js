@@ -103,7 +103,7 @@ export default class PlayScene extends Phaser.Scene {
         });
 
         let HUDScene = this.scene.get('HUD');
-        HUDScene.events.on("reload_finished", function () {
+        HUDScene.events.on("reload_finished", function() {
             this.isReloading = false;
         }, this);
 
@@ -159,7 +159,7 @@ export default class PlayScene extends Phaser.Scene {
 
                 if (sessionId != this.room.sessionId) {
                     // If you want to track changes on a child object inside a map, this is a common pattern:
-                    player.onChange = function (changes) {
+                    player.onChange = function(changes) {
                         changes.forEach(change => {
                             if (change.field == "rotation") {
                                 self.players[sessionId].sprite.target_rotation = change.value;
@@ -175,7 +175,7 @@ export default class PlayScene extends Phaser.Scene {
                     };
 
                 } else {
-                    player.onChange = function (changes) {
+                    player.onChange = function(changes) {
                         changes.forEach(change => {
                             if (change.field == "num_bullets") {
                                 self.player.num_bullets = change.value;
@@ -195,7 +195,7 @@ export default class PlayScene extends Phaser.Scene {
                 this.bulletSound.play();
 
                 // If you want to track changes on a child object inside a map, this is a common pattern:
-                bullet.onChange = function (changes) {
+                bullet.onChange = function(changes) {
                     changes.forEach(change => {
                         if (change.field == "x") {
                             self.bullets[bullet.index].x = change.value;
@@ -207,13 +207,13 @@ export default class PlayScene extends Phaser.Scene {
 
             }
 
-            this.room.state.bullets.onRemove = function (bullet, sessionId) {
+            this.room.state.bullets.onRemove = function(bullet, sessionId) {
                 self.removeBullet(bullet.index);
             }
 
 
 
-            this.room.state.players.onRemove = function (player, sessionId) {
+            this.room.state.players.onRemove = function(player, sessionId) {
                 //if the player removed (maybe killed) is not this player
                 if (sessionId !== self.room.sessionId) {
                     self.removePlayer(sessionId);
@@ -262,25 +262,23 @@ export default class PlayScene extends Phaser.Scene {
             } else if (message.event == "hit") {
                 if (message.punisher_id == self.room.sessionId) {
                     this.hits += 1;
-                } else if (message.punished.id == self.room.sessionId) {
-                    self.events.emit("health_changed", message.punished.health);
                 }
-  else if (message.event == "dead") {
-  	  self.player.sprite.destroy();
+            } else if (message.punished.id == self.room.sessionId) {
+                self.events.emit("health_changed", message.punished.health);
+            } else if (message.event == "dead") {
+                self.player.sprite.destroy();
                 delete self.player;
 
                 self.scene.pause("play");
 
                 self.scene.launch("gameOver", {
-                    score: this.scene.get('HUD').score, 
+                    score: this.scene.get('HUD').score,
                     time_survived: Date.now() - this.start_time,
                     hits: this.hits
                 });
-            }
-            else if (message.event == "good_shot") {
+            } else if (message.event == "good_shot") {
                 self.events.emit("addKills");
-            }
-  			else if (message.event == "good_shot") {
+            } else if (message.event == "good_shot") {
                 self.events.emit("addKills");
             } else if (message.event == "players_online") {
                 self.events.emit("players_in_game", message.number);
@@ -354,7 +352,7 @@ export default class PlayScene extends Phaser.Scene {
 
             if (this.cursors && this.RKey) {
                 this.moveMyPlayer();
-                this.input.on('pointerdown', function (pointer) {
+                this.input.on('pointerdown', function(pointer) {
                     this.shoot(time);
                 }, this);
 
@@ -364,11 +362,11 @@ export default class PlayScene extends Phaser.Scene {
                     });
                 }
             } else {
-                this.buttonA.on('pointerdown', function (pointer) {
+                this.buttonA.on('pointerdown', function(pointer) {
                     this.shoot(time);
                 }, this);
 
-                this.player.sprite.on('pointerdown', function (pointer) {
+                this.player.sprite.on('pointerdown', function(pointer) {
 
                     this.room.send({
                         action: "reload"
@@ -459,7 +457,7 @@ export default class PlayScene extends Phaser.Scene {
             this.player.sprite.setVelocityY(300);
         }
 
-        this.input.on('pointermove', function (pointer) {
+        this.input.on('pointermove', function(pointer) {
             this.rotatePlayer(pointer);
         }, this);
     }
