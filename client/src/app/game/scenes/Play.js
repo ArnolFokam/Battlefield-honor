@@ -263,8 +263,9 @@ export default class PlayScene extends Phaser.Scene {
                 if (message.punisher_id == self.room.sessionId) {
                     this.hits += 1;
                 }
-            } else if (message.punished.id == self.room.sessionId) {
-                self.events.emit("health_changed", message.punished.health);
+                else if (message.punished.id == self.room.sessionId) {
+                    self.events.emit("health_changed", message.punished.health);
+                }
             } else if (message.event == "dead") {
                 self.player.sprite.destroy();
                 delete self.player;
