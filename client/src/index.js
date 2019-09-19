@@ -5,7 +5,6 @@ import App from "./app/App.jsx";
 
 import reducers from "./app/reducers/index.js";
 import configureStore from './app/store/configureStore.js';
-import gameImage from "./app/assets/images/game.png";
 
 
 const store = configureStore();

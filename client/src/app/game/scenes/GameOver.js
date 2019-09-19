@@ -1,4 +1,5 @@
 import Phaser from "phaser";
+import gameImage from "./../../assets/images/game.png";
 
 export default class GameOverScene extends Phaser.Scene {
 
