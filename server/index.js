@@ -37,6 +37,10 @@ if (process.env.NODE_ENV == "production") {
 
 app.use("/assets/game.png" ,  express.static(path.join(__dirname, "./../client/src/assets/game.png")));
 
+app.use("/battlefield-honor-privacy-policy" ,  express.static(path.join(__dirname, "./../client/privacy-policy-english.html")));
+
+app.use("/battlefield-honor-terms-conditions" ,  express.static(path.join(__dirname, "./../client/terms-conditions-english.html")));
+
 
 app.use(express.static(path.join(__dirname, "./../client/public")));
 
