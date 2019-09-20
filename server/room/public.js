@@ -14,20 +14,13 @@ class Player extends Schema {
 type("number")(Player.prototype, "x");
 type("number")(Player.prototype, "y");
 type("number")(Player.prototype, "rotation");
-type("number")(Player.prototype, "health");
-type("string")(Player.prototype, "name");
 type("number")(Player.prototype, "num_bullets");
-type("number")(Player.prototype, "kills");
 type("number")(Player.prototype, "alpha");
 
 class Bullet extends Schema {}
 type("number")(Bullet.prototype, "x");
 type("number")(Bullet.prototype, "y");
 type("number")(Bullet.prototype, "angle");
-type("number")(Bullet.prototype, "speed_x");
-type("number")(Bullet.prototype, "speed_y");
-type("number")(Bullet.prototype, "first_collision_x");
-type("number")(Bullet.prototype, "first_collision_y");
 type("number")(Bullet.prototype, "index");
 
 

@@ -7,10 +7,10 @@ import * as Colyseus from "colyseus.js";
 
 
 
-//const endpoint = (window.location.hostname === "localhost") ? `ws://localhost:${process.env.PORT}` : `${window.location.protocol.replace("http", "ws")}//${window.location.hostname}:${process.env.PORT}`;
+const endpoint = (window.location.hostname === "localhost") ? `ws://localhost:${process.env.PORT}` : `${window.location.protocol.replace("http", "ws")}//${window.location.hostname}:${process.env.PORT}`;
 
 //for heroku remote deployment...to run it locally comment the code below and uncomment the code at the top
-const endpoint = (window.location.protocol === "http:") ? `ws://${process.env.APP_URL}` : `wss://${process.env.APP_URL}`
+//const endpoint = (window.location.protocol === "http:") ? `ws://${process.env.APP_URL}` : `wss://${process.env.APP_URL}`
 
 
 
@@ -187,8 +187,12 @@ export default class PlayScene extends Phaser.Scene {
                                     self.events.emit("bullets_num_changed", self.player.num_bullets);
                                 }
                             } else if (change.field == "alpha") {
-                                self.events.emit("invisibility");
-                            }
+                                if(change.value < 1.0){
+                                    self.scene.get("HUD").blinkButton.setTint("0x5ef03e");
+                                } else {
+                                    self.scene.get("HUD").blinkButton.clearTint();
+                                }
+                            } 
                         });
                     };
                 }
@@ -281,8 +285,6 @@ export default class PlayScene extends Phaser.Scene {
                     time_survived: Date.now() - this.start_time,
                     hits: this.hits
                 });
-            } else if (message.event == "good_shot") {
-                self.events.emit("addKills");
             } else if (message.event == "good_shot") {
                 self.events.emit("addKills");
             } else if (message.event == "players_online") {
