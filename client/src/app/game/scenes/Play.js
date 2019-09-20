@@ -110,7 +110,7 @@ export default class PlayScene extends Phaser.Scene {
             scene: this
         });
 
-        HUDScene.events.on("reload_finished", function () {
+        HUDScene.events.on("reload_finished", function() {
             this.isReloading = false;
         }, this);
 
@@ -166,7 +166,7 @@ export default class PlayScene extends Phaser.Scene {
 
                 if (sessionId != this.room.sessionId) {
                     // If you want to track changes on a child object inside a map, this is a common pattern:
-                    player.onChange = function (changes) {
+                    player.onChange = function(changes) {
                         changes.forEach(change => {
                             if (change.field == "rotation") {
                                 self.players[sessionId].sprite.target_rotation = change.value;
@@ -182,7 +182,7 @@ export default class PlayScene extends Phaser.Scene {
                     };
 
                 } else {
-                    player.onChange = function (changes) {
+                    player.onChange = function(changes) {
                         changes.forEach(change => {
                             if (change.field == "num_bullets") {
                                 self.player.num_bullets = change.value;
@@ -206,7 +206,7 @@ export default class PlayScene extends Phaser.Scene {
                 this.bulletSound.play();
 
                 // If you want to track changes on a child object inside a map, this is a common pattern:
-                bullet.onChange = function (changes) {
+                bullet.onChange = function(changes) {
                     changes.forEach(change => {
                         if (change.field == "x") {
                             self.bullets[bullet.index].x = change.value;
@@ -218,13 +218,13 @@ export default class PlayScene extends Phaser.Scene {
 
             }
 
-            this.room.state.bullets.onRemove = function (bullet, sessionId) {
+            this.room.state.bullets.onRemove = function(bullet, sessionId) {
                 self.removeBullet(bullet.index);
             }
 
 
 
-            this.room.state.players.onRemove = function (player, sessionId) {
+            this.room.state.players.onRemove = function(player, sessionId) {
                 //if the player removed (maybe killed) is not this player
                 if (sessionId !== self.room.sessionId) {
                     self.removePlayer(sessionId);
@@ -340,22 +340,21 @@ export default class PlayScene extends Phaser.Scene {
 
                     if (message.players_online == 0) {
                         self.map["powerupLayer"] = self.map.getObjectLayer("powerup");
-<<<<<<< HEAD
                         let powerups = {};
                         for (let i = 1; i <= self.map["powerupLayer"].objects.length; i++) {
                             powerups[`powerup${i}`] = {};
                             let powerup = this.map.findObject("powerup", obj => obj.name === `powerup${i}`);
                             powerups[`powerup${i}`].x = powerup.x;
                             powerups[`powerup${i}`].y = powerup.y;
-=======
-                        for (let i = 1; i <= self.map["powerupLayer"].objects.length; i++) {
-                            this.map.findObject("powerup", obj => obj.name === `player${i}`);
->>>>>>> blood after death
+
+                            for (let i = 1; i <= self.map["powerupLayer"].objects.length; i++) {
+                                this.map.findObject("powerup", obj => obj.name === `player${i}`);
+                            }
+                            this.room.send({
+                                action: "powerups_positions",
+                                data: powerups
+                            });
                         }
-                        this.room.send({
-                            action: "powerups_positions",
-                            data: powerups
-                        });
                     }
                 }
             } else if (message.event == "health_changed") {
@@ -403,7 +402,7 @@ export default class PlayScene extends Phaser.Scene {
 
             if (this.cursors && this.RKey) {
                 this.moveMyPlayer();
-                this.input.on('pointerdown', function (pointer) {
+                this.input.on('pointerdown', function(pointer) {
                     this.shoot(time);
                 }, this);
 
@@ -414,18 +413,14 @@ export default class PlayScene extends Phaser.Scene {
                 }
             } else {
 
-<<<<<<< HEAD
-                this.buttonShoot.on('pointerdown', function () {
-=======
                 this.buttonShoot.on('pointerdown', function() {
->>>>>>> blood after death
                     this.shoot(time);
                 }, this);
 
 
                 this.dumpJoyStickState();
 
-                this.player.sprite.on('pointerdown', function (pointer) {
+                this.player.sprite.on('pointerdown', function(pointer) {
 
                     this.room.send({
                         action: "reload"
@@ -510,7 +505,7 @@ export default class PlayScene extends Phaser.Scene {
             this.player.sprite.setVelocityY(300);
         }
 
-        this.input.on('pointermove', function (pointer) {
+        this.input.on('pointermove', function(pointer) {
             this.rotatePlayer(pointer);
         }, this);
     }
