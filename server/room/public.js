@@ -13,6 +13,7 @@ class Player extends Schema {
 }
 type("number")(Player.prototype, "x");
 type("number")(Player.prototype, "y");
+type("string")(Player.prototype, "name");
 type("number")(Player.prototype, "rotation");
 type("number")(Player.prototype, "num_bullets");
 type("number")(Player.prototype, "alpha");
@@ -342,19 +343,26 @@ exports.outdoor = class extends colyseus.Room {
                             });
 
                             if (this.state.getPlayerHealth(id) <= 0) {
-                                this.send(this.getClientById(id), {
-                                    event: "dead"
+
+                                this.broadcast({
+                                    event: "dead",
+                                    dead_data: {
+                                        id: id,
+                                        x: this.state.getPlayer(id).x,
+                                        y: this.state.getPlayer(id).y
+                                    }
                                 });
+
+                                this.state.removePlayer(id);
 
                                 this.send(this.getClientById(this.state.bullets[i].owner_id), {
                                     event: "good_shot"
                                 });
 
-                                //if the player's bullet hit somebody and he died before
+                                //if a bullet hit somebody but it's owner died before
                                 if (this.state.bullets[i].owner_id) {
                                     this.state.players[this.state.bullets[i].owner_id].kills += 1;
 
-                                    this.state.removePlayer(id);
                                     this.broadcast({
                                         event: "players_online",
                                         number: this.state.players_online

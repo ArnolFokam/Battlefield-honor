@@ -277,16 +277,32 @@ export default class PlayScene extends Phaser.Scene {
                     self.events.emit("health_changed", message.punished.health);
                 }
             } else if (message.event == "dead") {
-                self.player.sprite.destroy();
-                delete self.player;
+                if (message.dead_data.id == self.room.sessionId) {
+                    self.player.sprite.destroy();
+                    delete self.player;
 
-                self.scene.pause("play");
+                    self.scene.pause("play");
+                    self.scene.pause("HUD");
 
-                self.scene.launch("gameOver", {
-                    score: this.scene.get('HUD').score,
-                    time_survived: Date.now() - this.start_time,
-                    hits: this.hits
-                });
+                    self.scene.launch("gameOver", {
+                        score: this.scene.get('HUD').score,
+                        time_survived: Date.now() - this.start_time,
+                        hits: this.hits
+                    });
+                } else {
+                    let blood = this.add.image(message.dead_data.x, message.dead_data.y, "blood").setTint("0xff0000").setScale(0.25);
+                    this.tweens.add({
+                        targets: blood,
+                        alpha: 0,
+                        ease: 'Power1',
+                        duration: 1500,
+                        yoyo: false,
+                        onComplete: function() {
+                            //position of the first target element
+                            arguments[1][0].destroy();
+                        }
+                    });
+                }
             } else if (message.event == "good_shot") {
                 self.events.emit("addKills");
             } else if (message.event == "players_online") {
@@ -324,12 +340,17 @@ export default class PlayScene extends Phaser.Scene {
 
                     if (message.players_online == 0) {
                         self.map["powerupLayer"] = self.map.getObjectLayer("powerup");
+<<<<<<< HEAD
                         let powerups = {};
                         for (let i = 1; i <= self.map["powerupLayer"].objects.length; i++) {
                             powerups[`powerup${i}`] = {};
                             let powerup = this.map.findObject("powerup", obj => obj.name === `powerup${i}`);
                             powerups[`powerup${i}`].x = powerup.x;
                             powerups[`powerup${i}`].y = powerup.y;
+=======
+                        for (let i = 1; i <= self.map["powerupLayer"].objects.length; i++) {
+                            this.map.findObject("powerup", obj => obj.name === `player${i}`);
+>>>>>>> blood after death
                         }
                         this.room.send({
                             action: "powerups_positions",
@@ -393,7 +414,11 @@ export default class PlayScene extends Phaser.Scene {
                 }
             } else {
 
+<<<<<<< HEAD
                 this.buttonShoot.on('pointerdown', function () {
+=======
+                this.buttonShoot.on('pointerdown', function() {
+>>>>>>> blood after death
                     this.shoot(time);
                 }, this);
 
