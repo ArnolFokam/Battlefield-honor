@@ -46,8 +46,8 @@ export default class PlayScene extends Phaser.Scene {
             HUD: 3
         }
         this.mapReceived = false;
-        this.maps = ["map", "map1", "map2"];
-        this.mapSizes = [3200, 4800, 3840];
+        this.maps = ["map", "map1", "map2", "map3"];
+        this.mapSizes = [3200, 4800, 3840, 4800];
         this.mapSize = 3200;
         this.client = new Colyseus.Client(endpoint);
     }
