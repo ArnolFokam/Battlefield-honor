@@ -45,6 +45,9 @@ export default class HUDScene extends Phaser.Scene {
         super('HUD');
         this.name = '';
         this.score = 0;
+        this.dimension = {
+
+        }
     }
 
     init(params) {
@@ -57,7 +60,7 @@ export default class HUDScene extends Phaser.Scene {
     create() {
 
         if (mobileAndTabletcheck()) {
-            this.scale = 0.85;
+            this.scale = 0.67;
             this.reloadText = "Tap the player to reload";
             this.reloadButtonTextOffset = 105;
         } else {
@@ -92,11 +95,11 @@ export default class HUDScene extends Phaser.Scene {
         }).setScrollFactor(0).setDepth(PlayScene.gameDepth.HUD).setScale(this.scale);
 
 
-        this.healthBar = new HealthBar({ scene: PlayScene, x: 80 * this.scale, y: 60 * this.scale, width: 200 * this.scale, height: 30 * this.scale, fixed: true });
-        this.add.image(50 * this.scale, 75 * this.scale, "healthPowerup").setScale(0.7);
+        this.healthBar = new HealthBar({ scene: this, x: 80 * this.scale, y: 60 * this.scale, width: 200 * this.scale, height: 30 * this.scale, fixed: true });
+        this.add.image(50 * this.scale, 75 * this.scale, "healthPowerup").setScale(0.7*this.scale);
 
-        this.shieldBar = new ShieldBar({ scene: PlayScene, x: 80 * this.scale, y: 110 * this.scale, width: 200 * this.scale, height: 20 * this.scale, fixed: true });
-        this.add.image(50 * this.scale, 120 * this.scale, "shieldPowerup").setScale(0.7);
+        this.shieldBar = new ShieldBar({ scene: this, x: 80 * this.scale, y: 110 * this.scale, width: 200 * this.scale, height: 20 * this.scale, fixed: true });
+        this.add.image(50 * this.scale, 120 * this.scale, "shieldPowerup").setScale(0.7*this.scale);
 
 
         //Listen for events from it
@@ -273,54 +276,73 @@ export default class HUDScene extends Phaser.Scene {
             this.updateLeaderboard(killsList)
         }, this);
 
-        this.add.image( window.innerWidth - 60, window.innerHeight/2 - 95, "healthPowerupHUD").setDepth(PlayScene.gameDepth.HUD).setScale(this.scale).setAlpha(0.6).setInteractive().on("pointerdown", () => {
+        this.healthButton = this.add.image( window.innerWidth - 60 * this.scale, window.innerHeight/2 - 95*this.scale, "healthPowerupHUD").setDepth(PlayScene.gameDepth.HUD).setScale(this.scale).setAlpha(0.6).setInteractive().on("pointerdown", () => {
             PlayScene.powerups.useItem("health");
         }).on("pointerover", () => {
             this.input.setDefaultCursor('pointer');
         }).on("pointerout", () => {
             this.input.setDefaultCursor('crosshair');
         });
-        this.add.graphics().fillCircle(window.innerWidth - 20, window.innerHeight/2  - 135, 15).setDepth(PlayScene.gameDepth.HUD).setAlpha(0.7);
-        this.healthItems = this.add.text(window.innerWidth - 20* this.scale - 5, window.innerHeight/2  - 135* this.scale - 8, '0', {
+        this.healthItemsBackground = this.add.graphics().fillCircle(window.innerWidth - 20*this.scale, window.innerHeight/2  - 135*this.scale, 15*this.scale).setDepth(PlayScene.gameDepth.HUD).setAlpha(0.7);
+        this.healthItems = this.add.text(window.innerWidth - 20* this.scale , window.innerHeight/2  - 135*this.scale, '0', {
             fontFamily: '"Valera Round", "Product Sans", "sans-serif"',
             fontSize: '16px',
             fontStyle: 'bold',
             color: '#fff'
-        }).setDepth(PlayScene.gameDepth.HUD).setScale(this.scale);
+        }).setDepth(PlayScene.gameDepth.HUD).setScale(this.scale).setOrigin(0.5);
 
 
 
-        this.add.image( window.innerWidth - 60, window.innerHeight/2 , "blinkPowerupHUD").setDepth(PlayScene.gameDepth.HUD).setScale(this.scale).setAlpha(0.6).setInteractive().on("pointerdown", () => {
+        this.blinkButton = this.add.image( window.innerWidth - 60*this.scale, window.innerHeight/2 , "blinkPowerupHUD").setDepth(PlayScene.gameDepth.HUD).setScale(this.scale).setAlpha(0.6).setInteractive().on("pointerdown", () => {
             PlayScene.powerups.useItem("blink");
         }).on("pointerover", () => {
             this.input.setDefaultCursor('pointer');
         }).on("pointerout", () => {
             this.input.setDefaultCursor('crosshair');
         });
-        this.add.graphics().fillCircle(window.innerWidth - 20, window.innerHeight/2  - 40, 15).setDepth(PlayScene.gameDepth.HUD).setAlpha(0.7);
-        this.blinkItems = this.add.text(window.innerWidth - 20* this.scale - 5, window.innerHeight/2  - 40* this.scale - 8, '0', {
+        this.blinkItemsBackground = this.add.graphics().fillCircle(window.innerWidth - 20*this.scale, window.innerHeight/2  - 40*this.scale, 15*this.scale).setDepth(PlayScene.gameDepth.HUD).setAlpha(0.7);
+        this.blinkItems = this.add.text(window.innerWidth - 20* this.scale, window.innerHeight/2  - 40* this.scale, '0', {
             fontFamily: '"Valera Round", "Product Sans", "sans-serif"',
             fontSize: '16px',
             fontStyle: 'bold',
             color: '#fff'
-        }).setDepth(PlayScene.gameDepth.HUD).setScale(this.scale);
+        }).setDepth(PlayScene.gameDepth.HUD).setScale(this.scale).setOrigin(0.5);
 
 
 
-        this.add.image( window.innerWidth - 60, window.innerHeight/2 + 95, "shieldPowerupHUD").setDepth(PlayScene.gameDepth.HUD).setScale(this.scale).setAlpha(0.6).setInteractive().on("pointerdown", () => {
+        this.shieldButton = this.add.image( window.innerWidth - 60*this.scale, window.innerHeight/2 + 95*this.scale, "shieldPowerupHUD").setDepth(PlayScene.gameDepth.HUD).setScale(this.scale).setAlpha(0.6).setInteractive().on("pointerdown", () => {
             PlayScene.powerups.useItem("shield");
         }).on("pointerover", () => {
             this.input.setDefaultCursor('pointer');
         }).on("pointerout", () => {
             this.input.setDefaultCursor('crosshair');
         });
-        this.add.graphics().fillCircle(window.innerWidth - 20, window.innerHeight/2  + 55, 15).setDepth(PlayScene.gameDepth.HUD).setAlpha(0.7);
-        this.shieldItems = this.add.text(window.innerWidth - 20* this.scale - 5, window.innerHeight/2  + 55* this.scale - 8, '0', {
+        this.shieldItemsBackground = this.add.graphics().fillCircle(window.innerWidth - 20*this.scale, window.innerHeight/2  + 55*this.scale, 15*this.scale).setDepth(PlayScene.gameDepth.HUD).setAlpha(0.7);
+        this.shieldItems = this.add.text(window.innerWidth - 20* this.scale , window.innerHeight/2  + 55* this.scale , '0', {
             fontFamily: '"Valera Round", "Product Sans", "sans-serif"',
             fontSize: '16px',
             fontStyle: 'bold',
             color: '#fff'
-        }).setDepth(PlayScene.gameDepth.HUD).setScale(this.scale);
+        }).setDepth(PlayScene.gameDepth.HUD).setScale(this.scale).setOrigin(0.5);
+
+        if (mobileAndTabletcheck()) {
+
+            this.shieldItemsBackground.destroy();
+            this.healthItemsBackground.destroy();
+            this.blinkItemsBackground.destroy();
+
+            this.shieldItemsBackground = this.add.graphics().fillCircle(window.innerWidth/2 + (40 - 5 - 100)*this.scale, (40-5)*this.scale, 15*this.scale).setDepth(PlayScene.gameDepth.HUD);
+            this.shieldButton.setPosition(window.innerWidth/2 - 100*this.scale, 40).setScale(this.scale*0.7);
+            this.shieldItems.setPosition(window.innerWidth/2 + (40 - 5 - 100)*this.scale, (40-5)*this.scale).setDepth(PlayScene.gameDepth.HUD+1);
+
+            this.healthItemsBackground = this.add.graphics().fillCircle(window.innerWidth/2 + (40 - 5)*this.scale, (40-5)*this.scale, 15*this.scale).setDepth(PlayScene.gameDepth.HUD);
+            this.healthButton.setPosition(window.innerWidth/2, 40).setScale(this.scale*0.7);
+            this.healthItems.setPosition(window.innerWidth/2 + (40 - 5)*this.scale, (40-5)*this.scale).setDepth(PlayScene.gameDepth.HUD+1);
+
+            this.blinkItemsBackground = this.add.graphics().fillCircle(window.innerWidth/2 + (40 - 5 + 100)*this.scale, (40-5)*this.scale, 15*this.scale).setDepth(PlayScene.gameDepth.HUD);
+            this.blinkButton.setPosition(window.innerWidth/2 + 100*this.scale, 40).setScale(this.scale*0.7);
+            this.blinkItems.setPosition(window.innerWidth/2 + (40 - 5 + 100)*this.scale, (40-5)*this.scale).setDepth(PlayScene.gameDepth.HUD+1);
+        }
 
         PlayScene.events.on("item_changed",  function(items){
             this.healthItems.setText(items["health"]);

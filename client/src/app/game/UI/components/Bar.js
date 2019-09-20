@@ -12,8 +12,7 @@ export default class Bar {
         }
         this.fixed = fixed || false
 
-
-        this.bar = new Phaser.GameObjects.Graphics(scene).setDepth(scene.gameDepth.HUD);
+        this.bar = new Phaser.GameObjects.Graphics(scene).setDepth(scene.scene.get('play').gameDepth.HUD);
         this.bar.setScrollFactor(0);
         this.draw();
 

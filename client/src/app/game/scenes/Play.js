@@ -26,7 +26,7 @@ export default class PlayScene extends Phaser.Scene {
     closingMessage = "You have been disconnected from the server";
 
     lastFired = 0;
-    shootingRate = 100;
+    shootingRate = 250;
     RKey;
     isReloading = false;
     bulletsBefore = 0;
@@ -70,13 +70,19 @@ export default class PlayScene extends Phaser.Scene {
 
         this.connect();
 
+        let HUDScene = this.scene.get('HUD');
+
         if (mobileAndTabletcheck()) {
-            this.joyStick = this.plugins.get('rexvirtualjoystickplugin').add(this, {
+            this.input.addPointer(2);
+            this.cameras.main.setZoom(0.6);
+
+            //joystick A fot mouvement
+            this.joyStick = this.plugins.get('rexvirtualjoystickplugin').add(HUDScene, {
                 y: window.innerHeight * (9 / 10) - 50,
                 x: window.innerWidth * (1.5 / 10) + 25,
                 radius: 50,
-                base: this.add.graphics().fillStyle(0x888888).fillCircle(0, 0, 50).setDepth(this.gameDepth.HUD).setAlpha(0.4),
-                thumb: this.add.graphics().fillStyle(0xcccccc).fillCircle(0, 0, 25).setDepth(this.gameDepth.HUD).setAlpha(0.4),
+                base: HUDScene.add.graphics().fillStyle(0x888888).fillCircle(0, 0, 50).setDepth(this.gameDepth.HUD).setAlpha(0.4),
+                thumb: HUDScene.add.graphics().fillStyle(0xcccccc).fillCircle(0, 0, 25).setDepth(this.gameDepth.HUD).setAlpha(0.4),
                 // dir: '8dir',   // 'up&down'|0|'left&right'|1|'4dir'|2|'8dir'|3
                 // forceMin: 16,
                 // enable: true
@@ -85,10 +91,12 @@ export default class PlayScene extends Phaser.Scene {
             this.joyStick.setScrollFactor(0);
 
             this.joystickCursors = this.joyStick.createCursorKeys();
-            this.dumpJoyStickState();
 
-            this.buttonA = this.add.image(window.innerWidth * (9 / 10) - 50, window.innerHeight * (9 / 10) - 50, "button").setInteractive();
-            this.buttonA.setScrollFactor(0).setDepth(this.gameDepth.HUD).setScale(2);
+            //for rotation and shoot
+            this.buttonShoot = HUDScene.add.image(window.innerWidth * (9 / 10) - 50, window.innerHeight * (9 / 10) - 50, 'button').setScale(2).setInteractive();
+
+            this.buttonShoot.setScrollFactor(0);
+            this.dumpJoyStickState();
 
         } else {
             this.cursors = this.input.keyboard.createCursorKeys();
@@ -99,7 +107,6 @@ export default class PlayScene extends Phaser.Scene {
             scene: this
         });
 
-        let HUDScene = this.scene.get('HUD');
         HUDScene.events.on("reload_finished", function() {
             this.isReloading = false;
         }, this);
@@ -360,9 +367,13 @@ export default class PlayScene extends Phaser.Scene {
                     });
                 }
             } else {
-                this.buttonA.on('pointerdown', function(pointer) {
+
+                this.buttonShoot.on('pointerdown', function(){
                     this.shoot(time);
                 }, this);
+
+
+                this.dumpJoyStickState();
 
                 this.player.sprite.on('pointerdown', function(pointer) {
 
@@ -370,12 +381,6 @@ export default class PlayScene extends Phaser.Scene {
                         action: "reload"
                     });
                 }, this);
-            }
-
-            if (this.joyStick) {
-
-                this.dumpJoyStickState();
-
             }
 
             this.shot = false;
@@ -477,20 +482,19 @@ export default class PlayScene extends Phaser.Scene {
         delete this.bullets[index];
     }
 
-    dumpJoyStickState(pointer = this.input.activePointer) {
+    dumpJoyStickState() {
 
         if (this.player.sprite) {
 
-            if (this.joyStick.rotation == 0) {
+            let force = Math.min(this.joyStick.force, 50) / 50;
+
+            if(this.joyStick.angle == 0){
                 return;
             }
-
-            let force = Math.min(this.joyStick.force, 50) / 50;
 
             this.player.sprite.setRotation(this.joyStick.rotation + (90 * Math.PI / 180));
 
             if (this.joystickCursors.left.isDown) {
-
                 this.player.sprite.setVelocityX(-300 * force);
 
             } else if (this.joystickCursors.right.isDown) {
@@ -510,7 +514,6 @@ export default class PlayScene extends Phaser.Scene {
     }
 
     shoot(time) {
-        top
         if (time > this.lastFired && this.player.num_bullets > 0 && !this.isReloading) {
             if (!this.shot) {
 
