@@ -56,7 +56,6 @@ export default class PlayScene extends Phaser.Scene {
     }
 
     init(params) {
-        this.scale.lockOrientation("landscape");
         this.player.name = params.name;
         this.map;
     }
