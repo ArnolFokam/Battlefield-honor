@@ -302,10 +302,10 @@ export default class PlayScene extends Phaser.Scene {
                     const tileset = self.map.addTilesetImage("battle-royale", "tiles");
                     const floorLayer = self.map.createStaticLayer("floor", tileset, 0, 0);
 
-                    if (message.mapNum == 0) {
+                    if (message.mapNum == 0 || message.mapNum == 3) {
                         self.map["herbeLayer"] = self.map.createStaticLayer("herbe", tileset, 0, 0).setAlpha(0.8).setDepth(self.gameDepth.herbe);
-                    } else if (message.mapNum == 1) {
-                        self.map["bordureLayer"] = self.map.createStaticLayer("bordure", tileset, 0, 0);
+                    } else if (message.mapNum == 1 || message.mapNum == 3) {
+                        self.map["borderLayer"] = self.map.createStaticLayer("border", tileset, 0, 0);
                     }
 
                     self.map["blockLayer"] = self.map.createStaticLayer("block", tileset, 0, 0);
@@ -317,6 +317,13 @@ export default class PlayScene extends Phaser.Scene {
                     self.physics.world.setBounds(0, 0, self.map.widthInPixels, self.map.heightInPixels);
 
                     self.mapReceived = true;
+
+                    if (message.players_online == 0){
+                        self.map["powerupLayer"] = self.map.getObjectLayer("powerup");
+                        for(let i = 1; i <= self.map["powerupLayer"].objects.length; i++){
+                            this.map.findObject("powerup", obj => obj.name === `player${i}`);
+                        }
+                    }
                 }
             } else if (message.event == "health_changed") {
                 self.events.emit("health_changed", message.health);

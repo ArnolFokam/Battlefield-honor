@@ -44,7 +44,7 @@ class State extends Schema {
         this.bullet_index = 0;
         this.players_online = 0;
         this.killsList = [];
-        this.mapNum = Math.floor(Math.random() * 3);
+        this.mapNum = Math.floor(Math.random() * 4);
         this.mapSize = mapSizes[this.mapNum];
     }
 
@@ -160,7 +160,8 @@ exports.outdoor = class extends colyseus.Room {
 
         this.send(client, {
             event: "map_num",
-            mapNum: this.state.mapNum
+            mapNum: this.state.mapNum,
+            players_online: this.state.players_online,
         });
 
         let nextPosition = this.state.getNextPosition();

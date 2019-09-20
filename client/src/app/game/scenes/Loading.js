@@ -3,6 +3,7 @@ import playerImage from "./../../assets/images/player.png"
 import outdoor from "./../../assets/tilemaps/battle-royale.json";
 import outdoor1 from "./../../assets/tilemaps/map1.json";
 import outdoor2 from "./../../assets/tilemaps/map2.json";
+import outdoor3 from "./../../assets/tilemaps/map3.json";
 import outdoorImage from "./../../assets/tilemaps/battle-royale.png";
 import bulletImage from "./../../assets/images/bullet.png";
 import healthPowerup from "./../../assets/images/health.png";
@@ -44,6 +45,7 @@ export default class LoadingScene extends Phaser.Scene {
         this.load.tilemapTiledJSON("map", outdoor);
         this.load.tilemapTiledJSON("map1", outdoor1);
         this.load.tilemapTiledJSON("map2", outdoor2);
+        this.load.tilemapTiledJSON("map3", outdoor3);
         this.load.image('player', playerImage);
         this.load.image('bullet', bulletImage);
         this.load.image('button', Button);
