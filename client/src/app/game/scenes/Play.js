@@ -194,9 +194,9 @@ export default class PlayScene extends Phaser.Scene {
 
             this.room.state.bullets.onAdd = (bullet, sessionId) => {
                 self.bullets[bullet.index] = self.physics.add.sprite(bullet.x, bullet.y, 'bullet').setRotation(bullet.angle);
-                
+
                 //add a damping effect
-                let distanceBetweenImpactAndPlayer = Math.sqrt(Math.pow(bullet.first_x - self.player.sprite.x ,2) + Math.pow(bullet.first_y - self.player.sprite.y ,2));
+                let distanceBetweenImpactAndPlayer = Math.sqrt(Math.pow(bullet.first_x - self.player.sprite.x, 2) + Math.pow(bullet.first_y - self.player.sprite.y, 2));
                 let dampedVolume = Math.pow(250, 2) / Math.pow(Math.max(distanceBetweenImpactAndPlayer, 250), 2);
 
                 dampedVolume = Math.round(dampedVolume * 100) / 100;
@@ -358,22 +358,22 @@ export default class PlayScene extends Phaser.Scene {
             } else if (message.event == "shield_changed") {
                 self.events.emit("shield_changed", message.shield);
             } else if (message.event == "powerups_positions") {
+                self.powerupList.length = 0;
                 for (let i in message.powerups) {
                     let p = message.powerups[i];
                     self.powerupList[i] = self.physics.add.image(p.x, p.y, self.powerups_labels[p.item]).setDepth(this.gameDepth.player);
                     self.powerupList[i].type = self.powerups_types[p.item];
+                    self.powerupList[i].i = p.item;
                 }
             } else if (message.event == "powerups_update") {
                 let powerup = self.powerupList[message.index];
-                if(self.room.sessionId == message.owner_id){
+                if (self.room.sessionId == message.owner_id) {
                     self.powerups.collectItem(powerup.type);
                 }
                 powerup.destroy();
                 if (message.index > -1) {
                     self.powerupList.splice(message.index, 1);
                 }
-                console.log(powerup);
-                console.log(self.powerupList);
             } else {
                 console.log(`${message} is an unknown message`);
             }
@@ -464,12 +464,14 @@ export default class PlayScene extends Phaser.Scene {
             this.physics.add.collider(this.player.sprite, this.map["blockLayer"]);
 
             this.physics.add.overlap(this.player.sprite, this.powerupList, (player, powerup) => {
-                let index = this.powerupList.indexOf(powerup);
-                if (index > -1) {
-                    this.room.send({
-                        action: "powerups_update",
-                        data: index
-                    });
+                if (this.powerups.items[this.powerups_types[powerup.i]] < 3) {
+                    let index = this.powerupList.indexOf(powerup);
+                    if (index > -1) {
+                        this.room.send({
+                            action: "powerups_update",
+                            data: index
+                        });
+                    }
                 }
             });
 

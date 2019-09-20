@@ -40,7 +40,8 @@ class State extends Schema {
         this.bullet_index = 0;
         this.players_online = 0;
         this.killsList = [];
-        this.mapNum = Math.floor(Math.random() * 4);
+        // this.mapNum = Math.floor(Math.random() * 4);
+        this.mapNum = 0;
         this.mapSize = mapSizes[this.mapNum];
         this.powerups = [];
         this.powerups2 = [];
@@ -173,7 +174,7 @@ exports.outdoor = class extends colyseus.Room {
             kills: 0
         });
 
-        if(this.state.powerups) {
+        if (this.state.powerups) {
             this.send(client, {
                 event: "powerups_positions",
                 powerups: this.state.powerups
@@ -247,7 +248,10 @@ exports.outdoor = class extends colyseus.Room {
 
             case "powerups_positions":
                 this.state.powerups = message.data;
-                this.state.powerups2 = this.state.powerups;
+                for (let i in this.state.powerups) {
+
+                }
+                this.copyArray(this.state.powerups, this.state.powerups2);
                 this.state.powerups.forEach(powerup => {
                     powerup.item = Math.floor(Math.random() * 3);
                 });
@@ -267,6 +271,19 @@ exports.outdoor = class extends colyseus.Room {
                     index: index,
                     owner_id: client.sessionId
                 });
+                if (this.state.powerups.length <= 0) {
+                    this.clock.setTimeout(() => {
+                        this.state.powerups.length = 0;
+                        this.copyArray(this.state.powerups2, this.state.powerups)
+                        this.state.powerups.forEach(powerup => {
+                            powerup.item = Math.floor(Math.random() * 3);
+                        });
+                        this.broadcast({
+                            event: "powerups_positions",
+                            powerups: this.state.powerups,
+                        });
+                    }, 45000);
+                }
                 break;
 
             default:
@@ -419,5 +436,11 @@ exports.outdoor = class extends colyseus.Room {
             }
         }
         return;
+    }
+
+    copyArray(arr1, arr2) {
+        for (let i in arr1) {
+            arr2[i] = arr1[i];
+        }
     }
 }
