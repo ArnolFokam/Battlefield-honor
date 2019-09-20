@@ -3,7 +3,7 @@ import ShieldBar from "./../UI/components/shieldBar.js";
 
 import {
     mobileAndTabletcheck
-} from "./../../utils/utils.js"
+} from "./../../utils/utils.js";
 import {
     ScaleModes
 } from "phaser";
@@ -137,7 +137,7 @@ export default class HUDScene extends Phaser.Scene {
 
         delete this.initialConnected;
 
-        this.add.text(0 * this.scale, window.innerHeight - 50 * this.scale, "online", {
+        this.add.text(0 * this.scale, window.innerHeight - 50 * this.scale, "alive", {
             fontFamily: '"Varela Round", sans-serif',
             fontSize: "20px",
             fill: "#FFFFFF",

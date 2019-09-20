@@ -14,7 +14,7 @@ import shieldPowerup from "./../../assets/images/shield.png";
 import shieldPowerupHUD from "./../../assets/images/shield_HUD.png";
 import shareButton from "./../../assets/images/HUD_share.png";
 import playAgainButton from "./../../assets/images/HUD_play_again.png";
-import cursorImage from "./../../assets/cursor.cur";
+import blood from "./../../assets/images/blood.png";
 import bulletSound from "./../../assets/sound/bulletsound.mp3";
 import gunReload from "./../../assets/sound/gunReload.mp3";
 import noBullets from "./../../assets/sound/noBullets.mp3";
@@ -57,6 +57,7 @@ export default class LoadingScene extends Phaser.Scene {
         this.load.image('shieldPowerupHUD', shieldPowerupHUD);
         this.load.image('playAgainButton', playAgainButton);
         this.load.image('shareButton', shareButton);
+        this.load.image('blood', blood);
 
         this.load.plugin('rexvirtualjoystickplugin', virtualjoystick, true);
 
