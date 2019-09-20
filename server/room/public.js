@@ -42,7 +42,8 @@ class State extends Schema {
         this.killsList = [];
         this.mapNum = Math.floor(Math.random() * 4);
         this.mapSize = mapSizes[this.mapNum];
-        this.powerups = null;
+        this.powerups = [];
+        this.powerups2 = [];
     }
 
     getNextPosition() {
@@ -245,13 +246,26 @@ exports.outdoor = class extends colyseus.Room {
                 break;
 
             case "powerups_positions":
-                this.state.powerups = message.data
-                for (let i in this.state.powerups) {
-                    this.state.powerups[i].item = Math.floor(Math.random() * 3);
-                }
+                this.state.powerups = message.data;
+                this.state.powerups2 = this.state.powerups;
+                this.state.powerups.forEach(powerup => {
+                    powerup.item = Math.floor(Math.random() * 3);
+                });
                 this.send(client, {
                     event: "powerups_positions",
                     powerups: this.state.powerups
+                });
+                break;
+
+            case "powerups_update":
+                let index = message.data;
+                if (index > -1) {
+                    this.state.powerups.splice(index, 1);
+                }
+                this.broadcast({
+                    event: "powerups_update",
+                    index: index,
+                    owner_id: client.sessionId
                 });
                 break;
 

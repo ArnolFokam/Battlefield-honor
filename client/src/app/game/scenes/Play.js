@@ -51,7 +51,7 @@ export default class PlayScene extends Phaser.Scene {
         this.mapSize = 3200;
         this.powerups_types = ["health", "shield", "blink"];
         this.powerups_labels = ["healthPowerup", "shieldPowerup", "blinkPowerup"];
-        this.powerupList = {};
+        this.powerupList = [];
         this.client = new Colyseus.Client(endpoint);
     }
 
@@ -110,18 +110,9 @@ export default class PlayScene extends Phaser.Scene {
             scene: this
         });
 
-        HUDScene.events.on("reload_finished", function() {
+        HUDScene.events.on("reload_finished", function () {
             this.isReloading = false;
         }, this);
-
-        this.test1 = this.physics.add.image(200, 200, "healthPowerup").setDepth(this.gameDepth.player);
-        this.test1.type = "health";
-
-        this.test2 = this.physics.add.image(150, 200, "shieldPowerup").setDepth(this.gameDepth.player);
-        this.test2.type = "shield";
-
-        this.test3 = this.physics.add.image(280, 240, "blinkPowerup").setDepth(this.gameDepth.player);
-        this.test3.type = "blink";
     }
 
     connect() {
@@ -166,7 +157,7 @@ export default class PlayScene extends Phaser.Scene {
 
                 if (sessionId != this.room.sessionId) {
                     // If you want to track changes on a child object inside a map, this is a common pattern:
-                    player.onChange = function(changes) {
+                    player.onChange = function (changes) {
                         changes.forEach(change => {
                             if (change.field == "rotation") {
                                 self.players[sessionId].sprite.target_rotation = change.value;
@@ -182,7 +173,7 @@ export default class PlayScene extends Phaser.Scene {
                     };
 
                 } else {
-                    player.onChange = function(changes) {
+                    player.onChange = function (changes) {
                         changes.forEach(change => {
                             if (change.field == "num_bullets") {
                                 self.player.num_bullets = change.value;
@@ -203,7 +194,7 @@ export default class PlayScene extends Phaser.Scene {
 
             this.room.state.bullets.onAdd = (bullet, sessionId) => {
                 self.bullets[bullet.index] = self.physics.add.sprite(bullet.x, bullet.y, 'bullet').setRotation(bullet.angle);
-
+                
                 //add a damping effect
                 let distanceBetweenImpactAndPlayer = Math.sqrt(Math.pow(bullet.first_x - self.player.sprite.x ,2) + Math.pow(bullet.first_y - self.player.sprite.y ,2));
                 let dampedVolume = Math.pow(250, 2) / Math.pow(Math.max(distanceBetweenImpactAndPlayer, 250), 2);
@@ -213,7 +204,7 @@ export default class PlayScene extends Phaser.Scene {
                 this.bulletSound.play();
 
                 // If you want to track changes on a child object inside a map, this is a common pattern:
-                bullet.onChange = function(changes) {
+                bullet.onChange = function (changes) {
                     changes.forEach(change => {
                         if (change.field == "x") {
                             self.bullets[bullet.index].x = change.value;
@@ -225,13 +216,13 @@ export default class PlayScene extends Phaser.Scene {
 
             }
 
-            this.room.state.bullets.onRemove = function(bullet, sessionId) {
+            this.room.state.bullets.onRemove = function (bullet, sessionId) {
                 self.removeBullet(bullet.index);
             }
 
 
 
-            this.room.state.players.onRemove = function(player, sessionId) {
+            this.room.state.players.onRemove = function (player, sessionId) {
                 //if the player removed (maybe killed) is not this player
                 if (sessionId !== self.room.sessionId) {
                     self.removePlayer(sessionId);
@@ -296,7 +287,8 @@ export default class PlayScene extends Phaser.Scene {
                         time_survived: Date.now() - this.start_time,
                         hits: this.hits
                     });
-                    self.client.close()
+
+                    self.client.close();
                 } else {
                     let blood = this.add.image(message.dead_data.x, message.dead_data.y, "blood").setTint("0xff0000").setScale(0.25);
                     this.tweens.add({
@@ -305,7 +297,7 @@ export default class PlayScene extends Phaser.Scene {
                         ease: 'Power1',
                         duration: 1500,
                         yoyo: false,
-                        onComplete: function() {
+                        onComplete: function () {
                             //position of the first target element
                             arguments[1][0].destroy();
                         }
@@ -348,21 +340,17 @@ export default class PlayScene extends Phaser.Scene {
 
                     if (message.players_online == 0) {
                         self.map["powerupLayer"] = self.map.getObjectLayer("powerup");
-                        let powerups = {};
-                        for (let i = 1; i <= self.map["powerupLayer"].objects.length; i++) {
-                            powerups[`powerup${i}`] = {};
-                            let powerup = this.map.findObject("powerup", obj => obj.name === `powerup${i}`);
-                            powerups[`powerup${i}`].x = powerup.x;
-                            powerups[`powerup${i}`].y = powerup.y;
-
-                            for (let i = 1; i <= self.map["powerupLayer"].objects.length; i++) {
-                                this.map.findObject("powerup", obj => obj.name === `player${i}`);
-                            }
-                            this.room.send({
-                                action: "powerups_positions",
-                                data: powerups
-                            });
+                        let powerups = [];
+                        for (let i = 0; i < self.map["powerupLayer"].objects.length; i++) {
+                            let powerup = this.map.findObject("powerup", obj => obj.name === `powerup${i + 1}`);
+                            powerups[i] = {};
+                            powerups[i].x = powerup.x;
+                            powerups[i].y = powerup.y;
                         }
+                        this.room.send({
+                            action: "powerups_positions",
+                            data: powerups
+                        });
                     }
                 }
             } else if (message.event == "health_changed") {
@@ -375,6 +363,17 @@ export default class PlayScene extends Phaser.Scene {
                     self.powerupList[i] = self.physics.add.image(p.x, p.y, self.powerups_labels[p.item]).setDepth(this.gameDepth.player);
                     self.powerupList[i].type = self.powerups_types[p.item];
                 }
+            } else if (message.event == "powerups_update") {
+                let powerup = self.powerupList[message.index];
+                if(self.room.sessionId == message.owner_id){
+                    self.powerups.collectItem(powerup.type);
+                }
+                powerup.destroy();
+                if (message.index > -1) {
+                    self.powerupList.splice(message.index, 1);
+                }
+                console.log(powerup);
+                console.log(self.powerupList);
             } else {
                 console.log(`${message} is an unknown message`);
             }
@@ -410,7 +409,7 @@ export default class PlayScene extends Phaser.Scene {
 
             if (this.cursors && this.RKey) {
                 this.moveMyPlayer();
-                this.input.on('pointerdown', function(pointer) {
+                this.input.on('pointerdown', function (pointer) {
                     this.shoot(time);
                 }, this);
 
@@ -421,14 +420,14 @@ export default class PlayScene extends Phaser.Scene {
                 }
             } else {
 
-                this.buttonShoot.on('pointerdown', function() {
+                this.buttonShoot.on('pointerdown', function () {
                     this.shoot(time);
                 }, this);
 
 
                 this.dumpJoyStickState();
 
-                this.player.sprite.on('pointerdown', function(pointer) {
+                this.player.sprite.on('pointerdown', function (pointer) {
 
                     this.room.send({
                         action: "reload"
@@ -464,19 +463,14 @@ export default class PlayScene extends Phaser.Scene {
             this.cameras.main.startFollow(this.player.sprite);
             this.physics.add.collider(this.player.sprite, this.map["blockLayer"]);
 
-            this.physics.add.overlap(this.player.sprite, this.test1, () => {
-                this.powerups.collectItem(this.test1.type);
-                this.test1.destroy();
-            });
-
-            this.physics.add.overlap(this.player.sprite, this.test2, () => {
-                this.powerups.collectItem(this.test2.type);
-                this.test2.destroy();
-            });
-
-            this.physics.add.overlap(this.player.sprite, this.test3, () => {
-                this.powerups.collectItem(this.test3.type);
-                this.test3.destroy();
+            this.physics.add.overlap(this.player.sprite, this.powerupList, (player, powerup) => {
+                let index = this.powerupList.indexOf(powerup);
+                if (index > -1) {
+                    this.room.send({
+                        action: "powerups_update",
+                        data: index
+                    });
+                }
             });
 
             this.player.num_bullets = data.num_bullets;
@@ -513,7 +507,7 @@ export default class PlayScene extends Phaser.Scene {
             this.player.sprite.setVelocityY(300);
         }
 
-        this.input.on('pointermove', function(pointer) {
+        this.input.on('pointermove', function (pointer) {
             this.rotatePlayer(pointer);
         }, this);
     }
