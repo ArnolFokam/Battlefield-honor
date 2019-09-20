@@ -21,6 +21,8 @@ type("number")(Player.prototype, "alpha");
 class Bullet extends Schema {}
 type("number")(Bullet.prototype, "x");
 type("number")(Bullet.prototype, "y");
+type("number")(Bullet.prototype, "first_x");
+type("number")(Bullet.prototype, "first_y");
 type("number")(Bullet.prototype, "angle");
 type("number")(Bullet.prototype, "index");
 
@@ -54,6 +56,8 @@ class State extends Schema {
         bullet.index = this.bullet_index;
         bullet.x = data.x;
         bullet.y = data.y;
+        bullet.first_x = data.x;
+        bullet.first_y = data.y;
         bullet.angle = data.angle;
         bullet.speed_x = data.speed_x;
         bullet.speed_y = data.speed_y;

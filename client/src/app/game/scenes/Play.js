@@ -203,6 +203,13 @@ export default class PlayScene extends Phaser.Scene {
 
             this.room.state.bullets.onAdd = (bullet, sessionId) => {
                 self.bullets[bullet.index] = self.physics.add.sprite(bullet.x, bullet.y, 'bullet').setRotation(bullet.angle);
+
+                //add a damping effect
+                let distanceBetweenImpactAndPlayer = Math.sqrt(Math.pow(bullet.first_x - self.player.sprite.x ,2) + Math.pow(bullet.first_y - self.player.sprite.y ,2));
+                let dampedVolume = Math.pow(250, 2) / Math.pow(Math.max(distanceBetweenImpactAndPlayer, 250), 2);
+
+                dampedVolume = Math.round(dampedVolume * 100) / 100;
+                this.bulletSound.setVolume(dampedVolume);
                 this.bulletSound.play();
 
                 // If you want to track changes on a child object inside a map, this is a common pattern:
@@ -289,6 +296,7 @@ export default class PlayScene extends Phaser.Scene {
                         time_survived: Date.now() - this.start_time,
                         hits: this.hits
                     });
+                    self.client.close()
                 } else {
                     let blood = this.add.image(message.dead_data.x, message.dead_data.y, "blood").setTint("0xff0000").setScale(0.25);
                     this.tweens.add({
