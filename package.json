@@ -12,6 +12,16 @@
     "build:dev": "webpack --config client/webpack/base.js ",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "keywords": [
+    "battlefield honor",
+    "2d",
+    "top down",
+    "shooter",
+    "battle royale"
+  ],
+  "engines": {
+    "node": "10.x"
+  },
   "repository": {
     "type": "git",
     "url": "git+"
