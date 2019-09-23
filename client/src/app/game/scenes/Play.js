@@ -10,7 +10,7 @@ import * as Colyseus from "colyseus.js";
 const endpoint = (window.location.hostname === "localhost") ? `ws://localhost:${process.env.PORT}` : `${window.location.protocol.replace("http", "ws")}//${window.location.hostname}:${process.env.PORT}`;
 
 //for heroku remote deployment...to run it locally comment the code below and uncomment the code at the top
-//const endpoint = (window.location.protocol === "http:") ? `ws://${process.env.APP_URL}` : `wss://${process.env.APP_URL}`
+// const endpoint = (window.location.protocol === "http:") ? `ws://${process.env.APP_URL}` : `wss://${process.env.APP_URL}`
 
 
 
@@ -41,9 +41,10 @@ export default class PlayScene extends Phaser.Scene {
     constructor() {
         super("play");
         this.gameDepth = {
-            player: 1,
-            herbe: 2,
-            HUD: 3
+            powerup: 1,
+            player: 2,
+            herbe: 3,
+            HUD: 4
         }
         this.mapReceived = false;
         this.maps = ["map", "map1", "map2", "map3"];
@@ -360,7 +361,7 @@ export default class PlayScene extends Phaser.Scene {
                 self.powerupList.length = 0;
                 for (let i in message.powerups) {
                     let p = message.powerups[i];
-                    self.powerupList[i] = self.physics.add.image(p.x, p.y, self.powerups_labels[p.item]).setDepth(this.gameDepth.player);
+                    self.powerupList[i] = self.physics.add.image(p.x, p.y, self.powerups_labels[p.item]).setDepth(this.gameDepth.powerup);
                     self.powerupList[i].type = self.powerups_types[p.item];
                     self.powerupList[i].i = p.item;
                 }
